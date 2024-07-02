@@ -1,17 +1,19 @@
 import { useState, useEffect, useRef } from "react";
 import MapView, { PROVIDER_DEFAULT, UrlTile } from "react-native-maps";
 import * as Location from "expo-location";
-import { StyleSheet, View, Dimensions } from "react-native";
-import { Text, Button } from "react-native-paper";
+import { StyleSheet, View } from "react-native";
+import { Portal, Modal, Text, Button } from "react-native-paper";
+import haversine from "haversine-distance";
 
 export default RecordScreen = () => {
-  const [onRouteUpdate, setOnRouteUpdate] = useState();
   const [region, setRegion] = useState(null);
   const [userLocationHistory, setUserLocationHistory] = useState([]);
+  const [totalDistance, setTotalDistance] = useState(0);
   const [isTracking, setIsTracking] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const locationSubscription = useRef(null);
-  const isMounted = useRef(true);
+  const containerStyle = { backgroundColor: "white", padding: 20 };
 
   useEffect(() => {
     setIsLoading(true);
@@ -37,86 +39,79 @@ export default RecordScreen = () => {
     })();
   }, []);
 
+  const startLocationTracking = async () => {
+    try {
+      // Get initial location
+      let location = await Location.getCurrentPositionAsync({});
+      const initialLocation = {
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+        altitude: location.coords.altitude,
+      };
+      setUserLocationHistory([initialLocation]);
+      console.log("Initial location:", initialLocation);
 
+      // Watch for location updates
+      locationSubscription.current = await Location.watchPositionAsync(
+        {
+          accuracy: Location.Accuracy.High,
+          distanceInterval: 10,
+          timeInterval: 10000,
+        },
+        (location) => {
+          const newLocation = {
+            latitude: location.coords.latitude,
+            longitude: location.coords.longitude,
+            altitude: location.coords.altitude,
+          };
 
-    const startLocationTracking = async () => {
-      try {
-        // let { status } = await Location.requestForegroundPermissionsAsync();
-        // if (status !== "granted") {
-        //   throw new Error("Permission to access location was denied");
-        // }
+          // Check for significant changes in location before updating
+          setUserLocationHistory((prev) => {
+            const lastLocation = prev[prev.length - 1];
+            const distanceMoved = haversine(lastLocation, newLocation);
 
-        // Get initial location
-        let location = await Location.getCurrentPositionAsync({});
-        const initialLocation = {
-          latitude: location.coords.latitude,
-          longitude: location.coords.longitude,
-        };
-        setUserLocationHistory([initialLocation]);
-        console.log("Initial location:", initialLocation);
-
-        // Watch for location updates
-        locationSubscription.current = await Location.watchPositionAsync(
-          {
-            accuracy: Location.Accuracy.High,
-            distanceInterval: 10,
-            timeInterval: 10000,
-          },
-          (location) => {
-            const newLocation = {
-              latitude: location.coords.latitude,
-              longitude: location.coords.longitude,
-            };
-
-            // Check for significant changes in location before updating
-            setUserLocationHistory((prev) => {
-              const lastLocation = prev[prev.length - 1];
-              const distanceMoved = Math.sqrt(
-                Math.pow(newLocation.latitude - lastLocation.latitude, 2) +
-                  Math.pow(newLocation.longitude - lastLocation.longitude, 2)
+            // Only update if the user has moved significantly
+            if (distanceMoved > 0.0001) {
+              const updatedHistory = [...prev, newLocation];
+              console.log("Updated user location history:", updatedHistory);
+              setTotalDistance(
+                (previousDistance) => previousDistance + distanceMoved
               );
-
-              // Only update if the user has moved significantly
-              if (distanceMoved > 0.0001) {
-                const updatedHistory = [...prev, newLocation];
-                console.log("Updated user location history:", updatedHistory);
-                if (isMounted.current && typeof onRouteUpdate === "function") {
-                  onRouteUpdate(updatedHistory);
-                }
-                return updatedHistory;
-              } else {
-                return prev;
-              }
-            });
-          }
-        );
-      } catch (error) {
-        console.error("Error in location tracking:", error);
-      }
-    };
-
-    const handlePress = () => {
-      startLocationTracking();
+              return updatedHistory;
+            } else {
+              return prev;
+            }
+          });
+        }
+      );
+    } catch (error) {
+      console.error("Error in location tracking:", error);
     }
+  };
 
-    // if (!locationSubscription.current) {
-    //   startLocationTracking();
-    // }
+  const handleStart = () => {
+    startLocationTracking();
+    setIsTracking(true);
+  };
 
-
-
-    // return () => {
-    //   isMounted.current = false;
-    //   if (locationSubscription.current) {
-    //     locationSubscription.current.remove();
-    //     locationSubscription.current = null;
-    //   }
-    // };
+  const handleStop = () => {
+    setIsModalVisible(true);
+    setIsTracking(false);
+  };
 
   const tileUrl = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
 
   return (
     <>
+      <Portal>
+        <Modal
+          visible={isModalVisible}
+          onDismiss={() => setIsModalVisible(false)}
+          contentContainerStyle={containerStyle}
+        >
+          <Text>Example Modal. Click outside this area to dismiss.</Text>
+        </Modal>
+      </Portal>
       <View style={styles.container}>
         <View style={styles.mapContainer}>
           {region && (
@@ -137,11 +132,18 @@ export default RecordScreen = () => {
           )}
         </View>
         <View style={styles.info}>
-          <Text variant="displaySmall">0.2km</Text>
-          <Text variant="displaySmall">{!isLoading && region.altitude}</Text>
+          <Text variant="displaySmall">
+            {(totalDistance / 1000).toFixed(2)}km
+          </Text>
+          <Text variant="displaySmall">
+            {!isLoading && region.altitude.toFixed(2)}m
+          </Text>
         </View>
-        <Button mode="contained" onPress={handlePress}>
-          Press me
+        <Button
+          mode="contained"
+          onPress={!isTracking ? handleStart : handleStop}
+        >
+          {!isTracking ? "Start Tracking" : "Stop Tracking"}
         </Button>
       </View>
     </>
@@ -164,6 +166,7 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     flex: 1,
     flexDirection: "row",
+    justifyContent: "space-evenly",
     // alignItems: "center",
   },
 });
