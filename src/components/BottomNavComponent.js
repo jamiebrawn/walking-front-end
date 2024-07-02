@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BottomNavigation, Text } from "react-native-paper";
+import { BottomNavigation } from "react-native-paper";
 import Home from "../screens/Home";
 import RecordScreen from "../screens/RecordScreen";
 
