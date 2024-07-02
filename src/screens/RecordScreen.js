@@ -1,14 +1,19 @@
 import { useState, useEffect, useRef } from "react";
-import MapView, { PROVIDER_DEFAULT, UrlTile } from "react-native-maps";
+import MapView, {
+  PROVIDER_DEFAULT,
+  UrlTile,
+  Polyline,
+} from "react-native-maps";
 import * as Location from "expo-location";
 import { StyleSheet, View } from "react-native";
-import { Portal, Modal, Text, Button } from "react-native-paper";
+import { Portal, Modal, Text, Button, Icon } from "react-native-paper";
 import haversine from "haversine-distance";
 
 export default RecordScreen = () => {
   const [region, setRegion] = useState(null);
   const [userLocationHistory, setUserLocationHistory] = useState([]);
   const [totalDistance, setTotalDistance] = useState(0);
+  const [totalAscent, setTotalAscent] = useState(0);
   const [isTracking, setIsTracking] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -69,6 +74,11 @@ export default RecordScreen = () => {
           setUserLocationHistory((prev) => {
             const lastLocation = prev[prev.length - 1];
             const distanceMoved = haversine(lastLocation, newLocation);
+            let ascent = 0;
+
+            if (newLocation.altitude > lastLocation.altitude) {
+              ascent = newLocation.altitude - lastLocation.altitude;
+            }
 
             // Only update if the user has moved significantly
             if (distanceMoved > 0.0001) {
@@ -77,6 +87,7 @@ export default RecordScreen = () => {
               setTotalDistance(
                 (previousDistance) => previousDistance + distanceMoved
               );
+              setTotalAscent((previousAscent) => previousAscent + ascent);
               return updatedHistory;
             } else {
               return prev;
@@ -128,16 +139,29 @@ export default RecordScreen = () => {
                 flipY={false}
                 tileSize={256}
               />
+              <Polyline
+                coordinates={userLocationHistory.map((point) => ({
+                  latitude: point.latitude,
+                  longitude: point.longitude,
+                }))}
+                strokeColor="#FF0000"
+                strokeWidth={2}
+              />
             </MapView>
           )}
         </View>
         <View style={styles.info}>
-          <Text variant="displaySmall">
-            {(totalDistance / 1000).toFixed(2)}km
-          </Text>
-          <Text variant="displaySmall">
-            {!isLoading && region.altitude.toFixed(2)}m
-          </Text>
+          <View style={styles.metric}>
+            <Icon source="walk" size={30} />
+            <Text variant="displaySmall">
+              {(totalDistance / 1000).toFixed(2)}km
+              {/* {totalDistance.toFixed(2)}m */}
+            </Text>
+          </View>
+          <View style={styles.metric}>
+            <Icon source="slope-uphill" size={30} />
+            <Text variant="displaySmall">{totalAscent.toFixed(2)}m</Text>
+          </View>
         </View>
         <Button
           mode="contained"
@@ -168,5 +192,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-evenly",
     // alignItems: "center",
+  },
+  metric: {
+    flexDirection: "row",
+    alignItems: "center",
   },
 });
