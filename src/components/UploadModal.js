@@ -3,12 +3,16 @@ import { StyleSheet, View } from "react-native";
 import { useState } from "react";
 import Dropdown from "./form-components/DropDown";
 
-export default UploadModal = ({ isModalVisible, setIsModalVisible }) => {
+export default UploadModal = ({
+    isModalVisible,
+    setIsModalVisible,
+    userLocationHistory,
+    totalDistance,
+    totalAscent,
+}) => {
     const [walkTitle, setWalkTitle] = useState("");
     const [walkDescription, setWalkDescription] = useState("");
-    const [selectedDifficulty, setSelectedDifficulty] = useState("");
-
-    const containerStyle = { backgroundColor: "white", padding: 20 };
+    const [selectedDifficulty, setSelectedDifficulty] = useState();
 
     const difficulties = [
         { label: "Easy", value: "easy" },
@@ -16,14 +20,34 @@ export default UploadModal = ({ isModalVisible, setIsModalVisible }) => {
         { label: "Challenging", value: "challenging" },
     ];
 
+    const handleSave = () => {
+        // Builds object to send to POST endpoint when we create api file
+        const walkObject = {
+            walk: {
+                creator_id: 1,
+                title: walkTitle,
+                description: walkDescription,
+                distance_km: totalDistance,
+                ascent: totalAscent,
+                difficulty: selectedDifficulty || null,
+                start_latitude: userLocationHistory[0].latitude,
+                start_longitude: userLocationHistory[0].longitude,
+                start_altitude: userLocationHistory[0].altitude,
+            },
+            locations: userLocationHistory,
+        };
+    };
+
     return (
         <Portal>
             <Modal
                 visible={isModalVisible}
                 onDismiss={() => setIsModalVisible(false)}
-                contentContainerStyle={containerStyle}
+                contentContainerStyle={styles.modal}
             >
-                <Text>Fill in the form to save your walk.</Text>
+                <Text style={styles.centeredText}>
+                    Fill in the form to save your walk.
+                </Text>
                 <TextInput
                     label="Walk title"
                     value={walkTitle}
@@ -47,7 +71,11 @@ export default UploadModal = ({ isModalVisible, setIsModalVisible }) => {
                         Save
                     </Button>
                     {/* TO DO: update discard button onPress to clear stored route array? */}
-                    <Button onPress={() => setIsModalVisible(false)} mode="contained" style={styles.button}>
+                    <Button
+                        onPress={() => setIsModalVisible(false)}
+                        mode="contained"
+                        style={styles.button}
+                    >
                         Discard
                     </Button>
                 </View>
@@ -57,6 +85,14 @@ export default UploadModal = ({ isModalVisible, setIsModalVisible }) => {
 };
 
 const styles = StyleSheet.create({
+    modal: {
+        backgroundColor: "white",
+        padding: 20
+    },
+    centeredText: {
+        textAlign: "center",
+        marginVertical: 5
+    },
     button: {
         marginHorizontal: 5,
         minWidth: 100,
@@ -65,32 +101,6 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "center",
-        marginVertical: 5
+        marginVertical: 5,
     },
 });
-
-// walk: {
-//     creator_id: 1,
-//     title: 'Bronte country 2',
-//     description: 'Haworth to Withins Heights with only start, middle and end locations.',
-//     distance_km: 11.72,
-//     ascent: 345.75,
-//     rating: null,
-//     difficulty:  null,
-//     start_latitude: 53.8289460,
-//     start_longitude: -1.9569740,
-//     start_altitude: 0
-//     },
-// locations: [    {   latitude: 53.8289460,
-//                     longitude: -1.9569740,
-//                     altitude: 0
-//                 },
-//                 {   latitude: 53.8168600,
-//                     longitude: -2.0214000,
-//                     altitude: 0
-//                 },
-//                 {   latitude: 53.8288640,
-//                     longitude: -1.9571290,
-//                     altitude: 0
-//                 }
-//             ]
