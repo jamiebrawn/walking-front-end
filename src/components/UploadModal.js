@@ -1,6 +1,7 @@
 import { Portal, Modal, Text, TextInput, Button } from "react-native-paper";
 import { StyleSheet, View } from "react-native";
 import { useState, useEffect } from "react";
+import Ionicons from '@expo/vector-icons/Ionicons';
 import Dropdown from "./form-components/DropDown";
 
 export default UploadModal = ({
@@ -70,19 +71,25 @@ export default UploadModal = ({
                 onDismiss={() => setIsModalVisible(false)}
                 contentContainerStyle={styles.modal}
             >
-                <Text style={styles.centeredText}>
-                    Fill in the form to save your walk.
-                </Text>
+                <View style={styles.title} >
+                    <Text variant="headlineLarge" >Upload your walk</Text>
+                    <Ionicons name="footsteps-outline" size={36} style={{ marginVertical: 5 }} />
+                    <Text variant="titleMedium" style={styles.centeredText} >
+                    Let others follow in your footsteps...upload your walk to share it with the world!
+                    </Text>
+                </View>
                 <TextInput
                     label="Walk title"
                     value={walkTitle}
                     onChangeText={(text) => setWalkTitle(text)}
+                    style={styles.formInput}
                 />
                 <TextInput
                     label="Walk description"
                     multiline={true}
                     value={walkDescription}
                     onChangeText={(text) => setWalkDescription(text)}
+                    style={styles.formInput}
                 />
                 <Dropdown
                     items={difficulties}
@@ -90,11 +97,12 @@ export default UploadModal = ({
                     onValueChange={(itemValue) =>
                         setSelectedDifficulty(itemValue)
                     }
+                    style={styles.formInput}
                 />
                 {!confirmDiscard ? (
                     <View style={styles.buttonContainer}>
                         <Button onPress={handleSave} mode="contained" style={styles.button}>
-                            Save
+                            Upload
                         </Button>
                         <Button onPress={handleDiscard} mode="contained-tonal" style={styles.button}>
                             Discard
@@ -123,9 +131,16 @@ const styles = StyleSheet.create({
         backgroundColor: "white",
         padding: 20
     },
+    formInput: {
+        marginBottom: 5,
+    },
     centeredText: {
         textAlign: "center",
         marginVertical: 5
+    },
+    title: {
+        alignItems: "center",
+        justifyContent: "center"
     },
     warningText: {
         textAlign: "center",
