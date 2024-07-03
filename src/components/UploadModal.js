@@ -1,6 +1,6 @@
 import { Portal, Modal, Text, TextInput, Button } from "react-native-paper";
 import { StyleSheet, View } from "react-native";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Dropdown from "./form-components/DropDown";
 
 export default UploadModal = ({
@@ -13,6 +13,13 @@ export default UploadModal = ({
     const [walkTitle, setWalkTitle] = useState("");
     const [walkDescription, setWalkDescription] = useState("");
     const [selectedDifficulty, setSelectedDifficulty] = useState();
+    const [confirmDiscard, setConfirmDiscard] = useState(false);
+
+    useEffect(() => {
+        if (!isModalVisible) {
+            setConfirmDiscard(false);
+        }
+    }, [isModalVisible]);
 
     const difficulties = [
         { label: "Easy", value: "easy" },
@@ -24,7 +31,7 @@ export default UploadModal = ({
         // Builds object to send to POST endpoint when we create api file
         const walkObject = {
             walk: {
-                creator_id: 1,
+                creator_id: 1, //Hardcoded for now but ultimately will need to use logged in users id
                 title: walkTitle,
                 description: walkDescription,
                 distance_km: totalDistance,
@@ -36,6 +43,24 @@ export default UploadModal = ({
             },
             locations: userLocationHistory,
         };
+
+        setIsModalVisible(false);
+    };
+    
+    const handleDiscard = () => {
+        setConfirmDiscard(true);
+    };
+
+    const handleCancelDiscard = () => {
+        setConfirmDiscard(false);
+    };
+
+    const handleConfirmDiscard = () => {
+        // TO DO: update this to also clear stored route array (userLocationHistory)? 
+        setWalkTitle('');
+        setWalkDescription('');
+        setSelectedDifficulty('');
+        setIsModalVisible(false);
     };
 
     return (
@@ -66,19 +91,28 @@ export default UploadModal = ({
                         setSelectedDifficulty(itemValue)
                     }
                 />
-                <View style={styles.buttonContainer}>
-                    <Button mode="contained" style={styles.button}>
-                        Save
-                    </Button>
-                    {/* TO DO: update discard button onPress to clear stored route array? */}
-                    <Button
-                        onPress={() => setIsModalVisible(false)}
-                        mode="contained"
-                        style={styles.button}
-                    >
-                        Discard
-                    </Button>
-                </View>
+                {!confirmDiscard ? (
+                    <View style={styles.buttonContainer}>
+                        <Button onPress={handleSave} mode="contained" style={styles.button}>
+                            Save
+                        </Button>
+                        <Button onPress={handleDiscard} mode="contained-tonal" style={styles.button}>
+                            Discard
+                        </Button>
+                    </View>
+                ) : (
+                    <>
+                        <Text style={styles.warningText}>Are you sure you want to discard your route?</Text>
+                        <View style={styles.buttonContainer}>
+                            <Button onPress={handleConfirmDiscard} mode="contained-tonal" style={styles.button}>
+                                Confirm Discard
+                            </Button>
+                            <Button onPress={handleCancelDiscard} mode="contained" style={styles.button}>
+                                Cancel Discard
+                            </Button>
+                        </View>
+                    </>
+                )}
             </Modal>
         </Portal>
     );
@@ -92,6 +126,11 @@ const styles = StyleSheet.create({
     centeredText: {
         textAlign: "center",
         marginVertical: 5
+    },
+    warningText: {
+        textAlign: "center",
+        marginVertical: 5,
+        color: "red"
     },
     button: {
         marginHorizontal: 5,
