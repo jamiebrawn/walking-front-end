@@ -29,6 +29,6 @@ const styles = StyleSheet.create({
         width: "100%",
         paddingHorizontal: 10,
         backgroundColor: "rgb(233, 223, 235)",
-        color: "black",
+        color: "rgb(74, 69, 78)",
     },
 });
