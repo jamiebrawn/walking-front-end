@@ -8,6 +8,7 @@ import * as Location from "expo-location";
 import { StyleSheet, View } from "react-native";
 import { Portal, Modal, Text, Button, Icon } from "react-native-paper";
 import haversine from "haversine-distance";
+import UploadModal from "../components/UploadModal";
 
 export default RecordScreen = () => {
   const [region, setRegion] = useState(null);
@@ -18,7 +19,6 @@ export default RecordScreen = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const locationSubscription = useRef(null);
-  const containerStyle = { backgroundColor: "white", padding: 20 };
 
   useEffect(() => {
     setIsLoading(true);
@@ -114,15 +114,7 @@ export default RecordScreen = () => {
 
   return (
     <>
-      <Portal>
-        <Modal
-          visible={isModalVisible}
-          onDismiss={() => setIsModalVisible(false)}
-          contentContainerStyle={containerStyle}
-        >
-          <Text>Example Modal. Click outside this area to dismiss.</Text>
-        </Modal>
-      </Portal>
+      <UploadModal isModalVisible={isModalVisible} setIsModalVisible={setIsModalVisible} />
       <View style={styles.container}>
         <View style={styles.mapContainer}>
           {region && (
