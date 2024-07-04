@@ -6,15 +6,12 @@ import {
   FlatList,
   Switch,
   TouchableOpacity,
+  Platform,
 } from "react-native";
-import MapView, {
-  Marker,
-  PROVIDER_DEFAULT,
-  UrlTile,
-} from "react-native-maps";
-import { useNavigation } from '@react-navigation/native';
+import MapView, { Marker, PROVIDER_DEFAULT, UrlTile } from "react-native-maps";
+import { useNavigation } from "@react-navigation/native";
 import * as Location from "expo-location";
-// import { getWalks } from "../utils/api";
+import { getWalks } from "../utils/api";
 import WalkCard from "../components/WalkCard";
 
 export default Home = () => {
@@ -23,67 +20,60 @@ export default Home = () => {
   const [region, setRegion] = useState(null);
   const navigation = useNavigation();
 
-  // useEffect(() => {
-  //   const getWalks = async () => {
-  //     try {
-  //       const walksData = await getWalks();
-  //       setWalks(walksData);
-  
-  //     } catch (error) {
-  //       console.error("Error retrieving walks:", error);
-  //     }
-  //   })();
-  // }, []);
+  useEffect(() => {
+    const fetchWalks = async () => {
+      try {
+        const walksData = await getWalks();
+        setWalks(walksData);
+      } catch (error) {
+        console.error("Error retrieving walks:", error);
+      }
+    };
+    fetchWalks();
+  }, []);
 
   useEffect(() => {
     const setMap = async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
-        console.error("Permission to access location was denied");
+      try {
+        let { status } = await Location.requestForegroundPermissionsAsync();
 
-        if (walksData.length > 0) {
-          const latitudes = walksData.map((walk) => walk.start_latitude);
-          const longitudes = walksData.map((walk) => walk.start_longitude);
-          const minLat = Math.min(...latitudes);
-          const maxLat = Math.max(...latitudes);
-          const minLong = Math.min(...longitudes);
-          const maxLong = Math.max(...longitudes);
+        if (status !== "granted") {
+          console.error("Permission to access location was denied");
 
-          setRegion({
-            latitude: (minLat + maxLat) / 2,
-            longitude: (minLong + maxLong) / 2,
-            latitudeDelta: (maxLat - minLat) * 1.2,
-            longitudeDelta: (maxLong - minLong) * 1.2,
-          });
+          if (walks.length > 0) {
+            const latitudes = walks.map((walk) => walk.start_latitude);
+            const longitudes = walks.map((walk) => walk.start_longitude);
+            const minLat = Math.min(...latitudes);
+            const maxLat = Math.max(...latitudes);
+            const minLong = Math.min(...longitudes);
+            const maxLong = Math.max(...longitudes);
+
+            setRegion({
+              latitude: (minLat + maxLat) / 2,
+              longitude: (minLong + maxLong) / 2,
+              latitudeDelta: (maxLat - minLat) * 1.2,
+              longitudeDelta: (maxLong - minLong) * 1.2,
+            });
+          }
+          return;
         }
-        return;
+
+        let location = await Location.getCurrentPositionAsync({});
+
+        setRegion({
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+          latitudeDelta: 0.1,
+          longitudeDelta: 0.1,
+          altitude: location.coords.altitude || 0,
+        });
+      } catch (error) {
+        console.error("Error setting map region:", error);
       }
-
-      let location = await Location.getCurrentPositionAsync({});
-
-      setRegion({
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-        latitudeDelta: 0.1,
-        longitudeDelta: 0.1,
-        altitude: location.coords.altitude || 0,
-      });
     };
-    
-    setMap();
-  }, []);
 
-  // useEffect(() => {
-  //   const getWalks = async () => {
-  //     try {
-  //       const walksData = await getWalks();
-  //       setWalks(walksData);
-  
-  //     } catch (error) {
-  //       console.error("Error retrieving walks:", error);
-  //     }
-  //   })();
-  // }, []);
+    setMap();
+  }, [walks]);
 
   const toggleView = () => setIsMapView(!isMapView);
 
@@ -95,7 +85,7 @@ export default Home = () => {
     navigation.navigate("WalkDetails", { walk });
   };
 
-  const tileUrl = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
+  const tileUrl = "https://tile.openstreetmap.de/{z}/{x}/{y}.png";
 
   return (
     <View style={styles.container}>
@@ -105,33 +95,34 @@ export default Home = () => {
       </View>
       {isMapView ? (
         region && (
-            <MapView
-              style={styles.map}
-              initialRegion={region}
-              provider={PROVIDER_DEFAULT}
-              showsUserLocation={true}
-              showsMyLocationButton={true}
-            >
-              <UrlTile
-                urlTemplate={tileUrl}
-                maximumZ={19}
-                flipY={false}
-                tileSize={256}
-              />
-              {walks.map((walk) => (
-            <Marker
-              key={walk.id}
-              coordinate={{
-                latitude: walk.start_latitude,
-                longitude: walk.start_longitude,
-              }}
-              title={walk.title}
-              description={walk.description}
-              onPress={() => handleMarkerPress(walk)}
+          <MapView
+            style={styles.map}
+            initialRegion={region}
+            // provider={PROVIDER_DEFAULT}
+            showsUserLocation={true}
+            showsMyLocationButton={true}
+            mapType={Platform.OS == "android" ? "none" : "standard"}
+          >
+            <UrlTile
+              urlTemplate={tileUrl}
+              maximumZ={19}
+              flipY={false}
+              tileSize={256}
             />
-          ))}
-        </MapView>
-          )
+            {walks.map((walk) => (
+              <Marker
+                key={walk.id}
+                coordinate={{
+                  latitude: walk.start_latitude,
+                  longitude: walk.start_longitude,
+                }}
+                title={walk.title}
+                description={walk.description}
+                onPress={() => handleMarkerPress(walk)}
+              />
+            ))}
+          </MapView>
+        )
       ) : (
         <FlatList
           data={walks}
