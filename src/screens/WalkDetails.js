@@ -35,7 +35,7 @@ export default function WalkDetails() {
   return (
     <View style={styles.container}>
       <MapView style={styles.map}>
-        {coordinates.length > 0 && (
+        {locationPoints.length > 0 && (
           <Polyline
             coordinates={locationPoints.map((point) => ({
               latitude: point.latitude,
