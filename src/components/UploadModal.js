@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import Dropdown from "./form-components/DropDown";
 import { addWalk } from "../utils/api";
+import { validateTextInputContent, validateTextInputLength } from "../utils/formValidations";
 
 export default UploadModal = ({
     isModalVisible,
@@ -18,6 +19,7 @@ export default UploadModal = ({
     const [selectedDifficulty, setSelectedDifficulty] = useState(null);
     const [confirmDiscard, setConfirmDiscard] = useState(false);
     const [uploadedWalk, setUploadedWalk] = useState(null);
+    const [formErrors, setFormErrors] = useState({});
 
     useEffect(() => {
         if (!isModalVisible) {
@@ -32,6 +34,24 @@ export default UploadModal = ({
     ];
 
     const handleSave = () => {
+
+        let errors = {};
+
+        if (!validateTextInputContent(walkTitle)) {
+            errors.walkTitle = "Walk title must contain letters.";
+        } else if (!validateTextInputLength(walkTitle, 3, 30)) {
+            errors.walkTitle = "Walk title must be between 3 and 30 characters.";
+        }
+
+        if (!validateTextInputLength(walkDescription, 5, 255)) {
+            errors.walkDescription = "Walk description must be between 5 and 255 characters.";
+        }
+
+        if (Object.keys(errors).length > 0) {
+            setFormErrors(errors);
+            return;
+        }
+
         const walkObject = {
             walk: {
                 creator_id: 1, //Hardcoded for now but ultimately will need to use logged in users id
@@ -122,6 +142,11 @@ export default UploadModal = ({
                             style={styles.formInput}
                             accessibilityLabel="Walk title"
                         />
+                        {formErrors.walkTitle && (
+                            <Text style={styles.errorText}>
+                                {formErrors.walkTitle}
+                            </Text>
+                        )}
                         <TextInput
                             label="Walk description"
                             multiline={true}
@@ -130,6 +155,11 @@ export default UploadModal = ({
                             style={styles.formInput}
                             accessibilityLabel="Walk description"
                         />
+                        {formErrors.walkDescription && (
+                            <Text style={styles.errorText}>
+                                {formErrors.walkDescription}
+                            </Text>
+                        )}
                         <Dropdown
                             items={difficulties}
                             selectedValue={selectedDifficulty}
@@ -205,6 +235,10 @@ const styles = StyleSheet.create({
     title: {
         alignItems: "center",
         justifyContent: "center",
+    },
+    errorText: {
+        color: "red",
+        marginBottom: 5,
     },
     warningText: {
         textAlign: "center",
