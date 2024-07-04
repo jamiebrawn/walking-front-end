@@ -1,19 +1,84 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, FlatList, Switch } from "react-native";
-import MapView, { Marker } from "react-native-maps";
-import { getWalks } from "../utils/api";
+import { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  Switch,
+  TouchableOpacity,
+} from "react-native";
+import MapView, {
+  Marker,
+  PROVIDER_DEFAULT,
+  UrlTile,
+} from "react-native-maps";
+import { useNavigation } from '@react-navigation/native';
+import * as Location from "expo-location";
+// import { getWalks } from "../utils/api";
 import WalkCard from "../components/WalkCard";
 
-export default function Home() {
+export default Home = () => {
   const [walks, setWalks] = useState([]);
   const [isMapView, setIsMapView] = useState(true);
-
+  const [region, setRegion] = useState(null);
+  const navigation = useNavigation();
 
   // useEffect(() => {
-  //   (async () => {
+  //   const getWalks = async () => {
   //     try {
   //       const walksData = await getWalks();
   //       setWalks(walksData);
+  
+  //     } catch (error) {
+  //       console.error("Error retrieving walks:", error);
+  //     }
+  //   })();
+  // }, []);
+
+  useEffect(() => {
+    const setMap = async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        console.error("Permission to access location was denied");
+
+        if (walksData.length > 0) {
+          const latitudes = walksData.map((walk) => walk.start_latitude);
+          const longitudes = walksData.map((walk) => walk.start_longitude);
+          const minLat = Math.min(...latitudes);
+          const maxLat = Math.max(...latitudes);
+          const minLong = Math.min(...longitudes);
+          const maxLong = Math.max(...longitudes);
+
+          setRegion({
+            latitude: (minLat + maxLat) / 2,
+            longitude: (minLong + maxLong) / 2,
+            latitudeDelta: (maxLat - minLat) * 1.2,
+            longitudeDelta: (maxLong - minLong) * 1.2,
+          });
+        }
+        return;
+      }
+
+      let location = await Location.getCurrentPositionAsync({});
+
+      setRegion({
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+        latitudeDelta: 0.1,
+        longitudeDelta: 0.1,
+        altitude: location.coords.altitude || 0,
+      });
+    };
+    
+    setMap();
+  }, []);
+
+  // useEffect(() => {
+  //   const getWalks = async () => {
+  //     try {
+  //       const walksData = await getWalks();
+  //       setWalks(walksData);
+  
   //     } catch (error) {
   //       console.error("Error retrieving walks:", error);
   //     }
@@ -22,6 +87,16 @@ export default function Home() {
 
   const toggleView = () => setIsMapView(!isMapView);
 
+  const handleCardPress = (walk) => {
+    navigation.navigate("WalkDetails", { walk });
+  };
+
+  const handleMarkerPress = (walk) => {
+    navigation.navigate("WalkDetails", { walk });
+  };
+
+  const tileUrl = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
+
   return (
     <View style={styles.container}>
       <View style={styles.toggleContainer}>
@@ -29,8 +104,21 @@ export default function Home() {
         <Switch value={isMapView} onValueChange={toggleView} />
       </View>
       {isMapView ? (
-        <MapView style={styles.map}>
-          {walks.map((walk) => (
+        region && (
+            <MapView
+              style={styles.map}
+              initialRegion={region}
+              provider={PROVIDER_DEFAULT}
+              showsUserLocation={true}
+              showsMyLocationButton={true}
+            >
+              <UrlTile
+                urlTemplate={tileUrl}
+                maximumZ={19}
+                flipY={false}
+                tileSize={256}
+              />
+              {walks.map((walk) => (
             <Marker
               key={walk.id}
               coordinate={{
@@ -39,19 +127,25 @@ export default function Home() {
               }}
               title={walk.title}
               description={walk.description}
+              onPress={() => handleMarkerPress(walk)}
             />
           ))}
         </MapView>
+          )
       ) : (
         <FlatList
           data={walks}
           keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => <WalkCard walk={item} />}
+          renderItem={({ item }) => (
+            <TouchableOpacity onPress={() => handleCardPress(item)}>
+              <WalkCard walk={item} />
+            </TouchableOpacity>
+          )}
         />
       )}
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
