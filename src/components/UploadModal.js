@@ -1,8 +1,9 @@
 import { Portal, Modal, Text, TextInput, Button } from "react-native-paper";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View, TouchableOpacity } from "react-native";
 import { useState, useEffect } from "react";
-import Ionicons from '@expo/vector-icons/Ionicons';
+import Ionicons from "@expo/vector-icons/Ionicons";
 import Dropdown from "./form-components/DropDown";
+import { addWalk } from "../utils/api";
 
 export default UploadModal = ({
     isModalVisible,
@@ -10,11 +11,13 @@ export default UploadModal = ({
     userLocationHistory,
     totalDistance,
     totalAscent,
+    setUserLocationHistory,
 }) => {
     const [walkTitle, setWalkTitle] = useState("");
     const [walkDescription, setWalkDescription] = useState("");
-    const [selectedDifficulty, setSelectedDifficulty] = useState();
+    const [selectedDifficulty, setSelectedDifficulty] = useState(null);
     const [confirmDiscard, setConfirmDiscard] = useState(false);
+    const [uploadedWalk, setUploadedWalk] = useState(null);
 
     useEffect(() => {
         if (!isModalVisible) {
@@ -29,7 +32,6 @@ export default UploadModal = ({
     ];
 
     const handleSave = () => {
-        // Builds object to send to POST endpoint when we create api file
         const walkObject = {
             walk: {
                 creator_id: 1, //Hardcoded for now but ultimately will need to use logged in users id
@@ -44,10 +46,12 @@ export default UploadModal = ({
             },
             locations: userLocationHistory,
         };
-
-        setIsModalVisible(false);
+        addWalk(walkObject).then((addedWalk) => {
+            const { walk } = addedWalk;
+            setUploadedWalk(walk);
+        });
     };
-    
+
     const handleDiscard = () => {
         setConfirmDiscard(true);
     };
@@ -57,11 +61,19 @@ export default UploadModal = ({
     };
 
     const handleConfirmDiscard = () => {
-        // TO DO: update this to also clear stored route array (userLocationHistory)? 
-        setWalkTitle('');
-        setWalkDescription('');
-        setSelectedDifficulty('');
+        setUserLocationHistory([]);
+        setWalkTitle("");
+        setWalkDescription("");
+        setSelectedDifficulty("");
         setIsModalVisible(false);
+    };
+
+    const handleClose = () => {
+        setIsModalVisible(false);
+        setUserLocationHistory([]);
+        setWalkTitle("");
+        setWalkDescription("");
+        setSelectedDifficulty("");
     };
 
     return (
@@ -71,54 +83,98 @@ export default UploadModal = ({
                 onDismiss={() => setIsModalVisible(false)}
                 contentContainerStyle={styles.modal}
             >
-                <View style={styles.title} >
-                    <Text variant="headlineLarge" >Upload your walk</Text>
-                    <Ionicons name="footsteps-outline" size={36} style={{ marginVertical: 5 }} />
-                    <Text variant="titleMedium" style={styles.centeredText} >
-                    Let others follow in your footsteps...upload your walk to share it with the world!
-                    </Text>
-                </View>
-                <TextInput
-                    label="Walk title"
-                    value={walkTitle}
-                    onChangeText={(text) => setWalkTitle(text)}
-                    style={styles.formInput}
-                />
-                <TextInput
-                    label="Walk description"
-                    multiline={true}
-                    value={walkDescription}
-                    onChangeText={(text) => setWalkDescription(text)}
-                    style={styles.formInput}
-                />
-                <Dropdown
-                    items={difficulties}
-                    selectedValue={selectedDifficulty}
-                    onValueChange={(itemValue) =>
-                        setSelectedDifficulty(itemValue)
-                    }
-                    style={styles.formInput}
-                />
-                {!confirmDiscard ? (
-                    <View style={styles.buttonContainer}>
-                        <Button onPress={handleSave} mode="contained" style={styles.button}>
-                            Upload
-                        </Button>
-                        <Button onPress={handleDiscard} mode="contained-tonal" style={styles.button}>
-                            Discard
-                        </Button>
+                {uploadedWalk ? (
+                    <View style={styles.successContainer}>
+                        <Text variant="headlineLarge">Success!</Text>
+                        <Text style={styles.centeredText}>
+                            Your walk "{uploadedWalk.title}" has been uploaded.
+                        </Text>
+                        <Button
+                        onPress={handleClose}
+                        mode="contained"
+                        style={styles.button}
+                        >Close</Button>
                     </View>
                 ) : (
                     <>
-                        <Text style={styles.warningText}>Are you sure you want to discard your route?</Text>
-                        <View style={styles.buttonContainer}>
-                            <Button onPress={handleConfirmDiscard} mode="contained-tonal" style={styles.button}>
-                                Confirm Discard
-                            </Button>
-                            <Button onPress={handleCancelDiscard} mode="contained" style={styles.button}>
-                                Cancel Discard
-                            </Button>
+                        <View style={styles.title}>
+                            <Text variant="headlineLarge">
+                                Upload your walk
+                            </Text>
+                            <Ionicons
+                                name="footsteps-outline"
+                                size={36}
+                                style={{ marginVertical: 5 }}
+                            />
+                            <Text
+                                variant="titleMedium"
+                                style={styles.centeredText}
+                            >
+                                Let others follow in your footsteps...upload
+                                your walk to share it with the world!
+                            </Text>
                         </View>
+                        <TextInput
+                            label="Walk title"
+                            value={walkTitle}
+                            onChangeText={(text) => setWalkTitle(text)}
+                            style={styles.formInput}
+                        />
+                        <TextInput
+                            label="Walk description"
+                            multiline={true}
+                            value={walkDescription}
+                            onChangeText={(text) => setWalkDescription(text)}
+                            style={styles.formInput}
+                        />
+                        <Dropdown
+                            items={difficulties}
+                            selectedValue={selectedDifficulty}
+                            onValueChange={(itemValue) =>
+                                setSelectedDifficulty(itemValue)
+                            }
+                            style={styles.formInput}
+                        />
+                        {!confirmDiscard ? (
+                            <View style={styles.buttonContainer}>
+                                <Button
+                                    onPress={handleSave}
+                                    mode="contained"
+                                    style={styles.button}
+                                >
+                                    Upload
+                                </Button>
+                                <Button
+                                    onPress={handleDiscard}
+                                    mode="contained-tonal"
+                                    style={styles.button}
+                                >
+                                    Discard
+                                </Button>
+                            </View>
+                        ) : (
+                            <>
+                                <Text style={styles.warningText}>
+                                    Are you sure you want to discard your route?
+                                </Text>
+                                <View style={styles.buttonContainer}>
+                                    <Button
+                                        onPress={handleConfirmDiscard}
+                                        mode="contained-tonal"
+                                        style={styles.button}
+                                    >
+                                        Confirm Discard
+                                    </Button>
+                                    <Button
+                                        onPress={handleCancelDiscard}
+                                        mode="contained"
+                                        style={styles.button}
+                                    >
+                                        Cancel Discard
+                                    </Button>
+                                </View>
+                            </>
+                        )}
                     </>
                 )}
             </Modal>
@@ -129,23 +185,23 @@ export default UploadModal = ({
 const styles = StyleSheet.create({
     modal: {
         backgroundColor: "white",
-        padding: 20
+        padding: 20,
     },
     formInput: {
         marginBottom: 5,
     },
     centeredText: {
         textAlign: "center",
-        marginVertical: 5
+        marginVertical: 5,
     },
     title: {
         alignItems: "center",
-        justifyContent: "center"
+        justifyContent: "center",
     },
     warningText: {
         textAlign: "center",
         marginVertical: 5,
-        color: "red"
+        color: "red",
     },
     button: {
         marginHorizontal: 5,
@@ -156,5 +212,15 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
         marginVertical: 5,
+    },
+    successContainer: {
+        alignItems: "center",
+        justifyContent: "center",
+        paddingVertical: 20,
+    },
+    linkText: {
+        color: "blue",
+        textDecorationLine: "underline",
+        marginTop: 10,
     },
 });
