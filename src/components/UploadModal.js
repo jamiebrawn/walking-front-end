@@ -1,5 +1,5 @@
 import { Portal, Modal, Text, TextInput, Button } from "react-native-paper";
-import { StyleSheet, View, TouchableOpacity } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { useState, useEffect } from "react";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import Dropdown from "./form-components/DropDown";
@@ -93,6 +93,7 @@ export default UploadModal = ({
                         onPress={handleClose}
                         mode="contained"
                         style={styles.button}
+                        accessibilityLabel="Close"
                         >Close</Button>
                     </View>
                 ) : (
@@ -119,6 +120,7 @@ export default UploadModal = ({
                             value={walkTitle}
                             onChangeText={(text) => setWalkTitle(text)}
                             style={styles.formInput}
+                            accessibilityLabel="Walk title"
                         />
                         <TextInput
                             label="Walk description"
@@ -126,6 +128,7 @@ export default UploadModal = ({
                             value={walkDescription}
                             onChangeText={(text) => setWalkDescription(text)}
                             style={styles.formInput}
+                            accessibilityLabel="Walk description"
                         />
                         <Dropdown
                             items={difficulties}
@@ -134,6 +137,7 @@ export default UploadModal = ({
                                 setSelectedDifficulty(itemValue)
                             }
                             style={styles.formInput}
+                            accessibilityLabel="Select walk difficulty"
                         />
                         {!confirmDiscard ? (
                             <View style={styles.buttonContainer}>
@@ -141,6 +145,7 @@ export default UploadModal = ({
                                     onPress={handleSave}
                                     mode="contained"
                                     style={styles.button}
+                                    accessibilityLabel="Upload walk"
                                 >
                                     Upload
                                 </Button>
@@ -148,6 +153,7 @@ export default UploadModal = ({
                                     onPress={handleDiscard}
                                     mode="contained-tonal"
                                     style={styles.button}
+                                    accessibilityLabel="Discard walk"
                                 >
                                     Discard
                                 </Button>
@@ -162,6 +168,7 @@ export default UploadModal = ({
                                         onPress={handleConfirmDiscard}
                                         mode="contained-tonal"
                                         style={styles.button}
+                                        accessibilityLabel="Confirm discard"
                                     >
                                         Confirm Discard
                                     </Button>
@@ -169,6 +176,7 @@ export default UploadModal = ({
                                         onPress={handleCancelDiscard}
                                         mode="contained"
                                         style={styles.button}
+                                        accessibilityLabel="Cancel discard"
                                     >
                                         Cancel Discard
                                     </Button>

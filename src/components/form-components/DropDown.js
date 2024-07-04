@@ -8,7 +8,7 @@ const Dropdown = ({ items, selectedValue, onValueChange }) => {
                 onValueChange={onValueChange}
                 style={styles.picker}
             >
-                <Picker.Item label="Select difficulty" />
+                <Picker.Item label="Select walk difficulty" />
                 {items.map((item, index) => (
                     <Picker.Item
                         label={item.label}
