@@ -114,7 +114,7 @@ export default RecordScreen = () => {
 
   return (
     <>
-      <UploadModal isModalVisible={isModalVisible} setIsModalVisible={setIsModalVisible} userLocationHistory={userLocationHistory} totalDistance={totalDistance} totalAscent={totalAscent} />
+      <UploadModal isModalVisible={isModalVisible} setIsModalVisible={setIsModalVisible} userLocationHistory={userLocationHistory} totalDistance={totalDistance} totalAscent={totalAscent} setUserLocationHistory={setUserLocationHistory} />
       <View style={styles.container}>
         <View style={styles.mapContainer}>
           {region && (

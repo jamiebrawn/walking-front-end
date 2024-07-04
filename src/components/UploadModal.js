@@ -1,8 +1,10 @@
 import { Portal, Modal, Text, TextInput, Button } from "react-native-paper";
 import { StyleSheet, View } from "react-native";
 import { useState, useEffect } from "react";
-import Ionicons from '@expo/vector-icons/Ionicons';
+import Ionicons from "@expo/vector-icons/Ionicons";
 import Dropdown from "./form-components/DropDown";
+import { addWalk } from "../utils/api";
+import { validateTextInputContent, validateTextInputLength } from "../utils/formValidations";
 
 export default UploadModal = ({
     isModalVisible,
@@ -10,11 +12,18 @@ export default UploadModal = ({
     userLocationHistory,
     totalDistance,
     totalAscent,
+    setUserLocationHistory,
 }) => {
-    const [walkTitle, setWalkTitle] = useState("");
-    const [walkDescription, setWalkDescription] = useState("");
-    const [selectedDifficulty, setSelectedDifficulty] = useState();
+    const [formData, setFormData] = useState({
+        walkTitle: "",
+        walkDescription: "",
+        selectedDifficulty: null,
+    });
     const [confirmDiscard, setConfirmDiscard] = useState(false);
+    const [uploadedWalk, setUploadedWalk] = useState(null);
+    const [formErrors, setFormErrors] = useState({});
+    const [uploadError, setUploadError] = useState(null);
+
 
     useEffect(() => {
         if (!isModalVisible) {
@@ -29,25 +38,76 @@ export default UploadModal = ({
     ];
 
     const handleSave = () => {
-        // Builds object to send to POST endpoint when we create api file
-        const walkObject = {
-            walk: {
-                creator_id: 1, //Hardcoded for now but ultimately will need to use logged in users id
-                title: walkTitle,
-                description: walkDescription,
-                distance_km: totalDistance,
-                ascent: totalAscent,
-                difficulty: selectedDifficulty || null,
-                start_latitude: userLocationHistory[0].latitude,
-                start_longitude: userLocationHistory[0].longitude,
-                start_altitude: userLocationHistory[0].altitude,
-            },
-            locations: userLocationHistory,
-        };
 
-        setIsModalVisible(false);
+        let errors = {};
+
+        if (!validateTextInputContent(formData.walkTitle)) {
+            errors.walkTitle = "Walk title must contain letters.";
+        } else if (!validateTextInputLength(formData.walkTitle, 3, 30)) {
+            errors.walkTitle = "Walk title must be between 3 and 30 characters.";
+        }
+
+        if (!validateTextInputLength(formData.walkDescription, 5, 255)) {
+            errors.walkDescription = "Walk description must be between 5 and 255 characters.";
+        }
+
+        if (Object.keys(errors).length > 0) {
+            setFormErrors(errors);
+            return;
+        }
+
+        const walkObject = {
+            // walk: {
+            //     creator_id: 1, //Hardcoded for now but ultimately will need to use logged in users id
+            //     title: formData.walkTitle,
+            //     description: formData.walkDescription,
+            //     distance_km: totalDistance,
+            //     ascent: totalAscent,
+            //     difficulty: formData.selectedDifficulty || null,
+            //     start_latitude: userLocationHistory[0].latitude,
+            //     start_longitude: userLocationHistory[0].longitude,
+            //     start_altitude: userLocationHistory[0].altitude,
+            // },
+            // locations: userLocationHistory,
+            // ^^Above is the correct code - below is hardcoded walk object for testing to avoid leaking our personal location data.
+            walk: {
+                creator_id: 1, 
+                title: formData.walkTitle,
+                description: formData.walkDescription,
+            distance_km: 18,
+                ascent: 900,
+                difficulty: formData.selectedDifficulty || null,
+                start_latitude: 53.52989,
+                start_longitude: -2.02364,
+                start_altitude: 242,
+            },
+            locations: [
+                {"latitude": 53.52989, "longitude": -2.02364},
+                {"latitude": 53.52986, "longitude": -2.02364},
+                {"latitude": 53.52962, "longitude": -2.02399},
+                {"latitude": 53.52949, "longitude": -2.02431},
+                {"latitude": 53.52931, "longitude": -2.02443},
+                {"latitude": 53.52926, "longitude": -2.02453},
+                {"latitude": 53.52923, "longitude": -2.02462},
+                {"latitude": 53.5285, "longitude": -2.02483},
+                {"latitude": 53.52849, "longitude": -2.02479},
+                {"latitude": 53.52838, "longitude": -2.02433},
+                {"latitude": 53.5284, "longitude": -2.02422},
+                {"latitude": 53.52848, "longitude": -2.02398},
+                {"latitude": 53.5284, "longitude": -2.02334}
+            ],
+        };
+        addWalk(walkObject).then((addedWalk) => {
+            const { walk } = addedWalk;
+            setUploadedWalk(walk);
+            setUploadError(null);
+        })
+        .catch((error) => {
+            console.log('Error uploading walk: ', error)
+            setUploadError("Unable to upload walk, please try again");
+        });
     };
-    
+
     const handleDiscard = () => {
         setConfirmDiscard(true);
     };
@@ -57,11 +117,37 @@ export default UploadModal = ({
     };
 
     const handleConfirmDiscard = () => {
-        // TO DO: update this to also clear stored route array (userLocationHistory)? 
-        setWalkTitle('');
-        setWalkDescription('');
-        setSelectedDifficulty('');
+        setUserLocationHistory([]);
+        setFormData({
+            walkTitle: "",
+            walkDescription: "",
+            selectedDifficulty: null,
+        });
         setIsModalVisible(false);
+    };
+
+    const handleClose = () => {
+        setIsModalVisible(false);
+        setUserLocationHistory([]);
+        setFormData({
+            walkTitle: "",
+            walkDescription: "",
+            selectedDifficulty: null,
+        });
+    };
+
+    const handleInputChange = (field, value) => {
+        setFormData({
+            ...formData,
+            [field]: value,
+        });
+
+        if (formErrors[field]) {
+            setFormErrors({
+                ...formErrors,
+                [field]: "",
+            });
+        }
     };
 
     return (
@@ -71,54 +157,124 @@ export default UploadModal = ({
                 onDismiss={() => setIsModalVisible(false)}
                 contentContainerStyle={styles.modal}
             >
-                <View style={styles.title} >
-                    <Text variant="headlineLarge" >Upload your walk</Text>
-                    <Ionicons name="footsteps-outline" size={36} style={{ marginVertical: 5 }} />
-                    <Text variant="titleMedium" style={styles.centeredText} >
-                    Let others follow in your footsteps...upload your walk to share it with the world!
-                    </Text>
-                </View>
-                <TextInput
-                    label="Walk title"
-                    value={walkTitle}
-                    onChangeText={(text) => setWalkTitle(text)}
-                    style={styles.formInput}
-                />
-                <TextInput
-                    label="Walk description"
-                    multiline={true}
-                    value={walkDescription}
-                    onChangeText={(text) => setWalkDescription(text)}
-                    style={styles.formInput}
-                />
-                <Dropdown
-                    items={difficulties}
-                    selectedValue={selectedDifficulty}
-                    onValueChange={(itemValue) =>
-                        setSelectedDifficulty(itemValue)
-                    }
-                    style={styles.formInput}
-                />
-                {!confirmDiscard ? (
-                    <View style={styles.buttonContainer}>
-                        <Button onPress={handleSave} mode="contained" style={styles.button}>
-                            Upload
-                        </Button>
-                        <Button onPress={handleDiscard} mode="contained-tonal" style={styles.button}>
-                            Discard
-                        </Button>
+                {uploadedWalk ? (
+                    <View style={styles.successContainer}>
+                        <Text variant="headlineLarge">Success!</Text>
+                        <Text style={styles.centeredText}>
+                            Your walk "{uploadedWalk.title}" has been uploaded.
+                        </Text>
+                        <Button
+                        onPress={handleClose}
+                        mode="contained"
+                        style={styles.button}
+                        accessibilityLabel="Close"
+                        >Close</Button>
                     </View>
                 ) : (
                     <>
-                        <Text style={styles.warningText}>Are you sure you want to discard your route?</Text>
-                        <View style={styles.buttonContainer}>
-                            <Button onPress={handleConfirmDiscard} mode="contained-tonal" style={styles.button}>
-                                Confirm Discard
-                            </Button>
-                            <Button onPress={handleCancelDiscard} mode="contained" style={styles.button}>
-                                Cancel Discard
-                            </Button>
+                        <View style={styles.title}>
+                            <Text variant="headlineLarge">
+                                Upload your walk
+                            </Text>
+                            <Ionicons
+                                name="footsteps-outline"
+                                size={36}
+                                style={{ marginVertical: 5 }}
+                            />
+                            <Text
+                                variant="titleMedium"
+                                style={styles.centeredText}
+                            >
+                                Let others follow in your footsteps...upload
+                                your walk to share it with the world!
+                            </Text>
                         </View>
+                        <TextInput
+                            label="Walk title"
+                            value={formData.walkTitle}
+                            onChangeText={(text) => handleInputChange("walkTitle", text)}
+                            style={styles.formInput}
+                            accessibilityLabel="Walk title"
+                        />
+                        {formErrors.walkTitle && (
+                            <Text style={styles.errorText}>
+                                {formErrors.walkTitle}
+                            </Text>
+                        )}
+                        <TextInput
+                            label="Walk description"
+                            multiline={true}
+                            value={formData.walkDescription}
+                            onChangeText={(text) => handleInputChange("walkDescription", text)}
+                            style={styles.formInput}
+                            accessibilityLabel="Walk description"
+                        />
+                        {formErrors.walkDescription && (
+                            <Text style={styles.errorText}>
+                                {formErrors.walkDescription}
+                            </Text>
+                        )}
+                        <Dropdown
+                            items={difficulties}
+                            selectedValue={formData.selectedDifficulty}
+                            onValueChange={(itemValue) =>
+                                setFormData({
+                                    ...formData,
+                                    selectedDifficulty: itemValue,
+                                })
+                            }
+                            style={styles.formInput}
+                            accessibilityLabel="Select walk difficulty"
+                        />
+                        {!confirmDiscard ? (
+                            <View>
+                                {uploadError && (
+                                    <Text style={styles.warningText}>{uploadError}</Text>
+                                )}                            
+                                <View style={styles.buttonContainer}>
+                                    <Button
+                                        onPress={handleSave}
+                                        mode="contained"
+                                        style={styles.button}
+                                        accessibilityLabel="Upload walk"
+                                    >
+                                        Upload
+                                    </Button>
+                                    <Button
+                                        onPress={handleDiscard}
+                                        mode="contained-tonal"
+                                        style={styles.button}
+                                        accessibilityLabel="Discard walk"
+                                    >
+                                        Discard
+                                    </Button>
+                                </View>
+                            </View>
+                        ) : (
+                            <>
+                                <Text style={styles.warningText}>
+                                    Are you sure you want to discard your route?
+                                </Text>
+                                <View style={styles.buttonContainer}>
+                                    <Button
+                                        onPress={handleConfirmDiscard}
+                                        mode="contained-tonal"
+                                        style={styles.button}
+                                        accessibilityLabel="Confirm discard"
+                                    >
+                                        Confirm Discard
+                                    </Button>
+                                    <Button
+                                        onPress={handleCancelDiscard}
+                                        mode="contained"
+                                        style={styles.button}
+                                        accessibilityLabel="Cancel discard"
+                                    >
+                                        Cancel Discard
+                                    </Button>
+                                </View>
+                            </>
+                        )}
                     </>
                 )}
             </Modal>
@@ -129,23 +285,27 @@ export default UploadModal = ({
 const styles = StyleSheet.create({
     modal: {
         backgroundColor: "white",
-        padding: 20
+        padding: 20,
     },
     formInput: {
         marginBottom: 5,
     },
     centeredText: {
         textAlign: "center",
-        marginVertical: 5
+        marginVertical: 5,
     },
     title: {
         alignItems: "center",
-        justifyContent: "center"
+        justifyContent: "center",
+    },
+    errorText: {
+        color: "red",
+        marginBottom: 5,
     },
     warningText: {
         textAlign: "center",
         marginVertical: 5,
-        color: "red"
+        color: "red",
     },
     button: {
         marginHorizontal: 5,
@@ -156,5 +316,15 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
         marginVertical: 5,
+    },
+    successContainer: {
+        alignItems: "center",
+        justifyContent: "center",
+        paddingVertical: 20,
+    },
+    linkText: {
+        color: "blue",
+        textDecorationLine: "underline",
+        marginTop: 10,
     },
 });
