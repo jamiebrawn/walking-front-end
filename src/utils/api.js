@@ -8,3 +8,15 @@ export const addWalk = (walkObject) => {
         throw error;
     });
 }
+
+export const getWalks = async () => {
+  const response = await walksApi.get(`/walks`);
+  return response.data.walks;
+};
+
+export const getWalkLocationPoints = async (walkId) => {
+  const response = await walksApi.get(
+    `/walks/${walkId}/walk_location_points`
+  );
+  return response.data.walk_location_points;
+};
