@@ -13,6 +13,8 @@ export default UploadModal = ({
     totalDistance,
     totalAscent,
     setUserLocationHistory,
+    setTotalDistance,
+    setTotalAscent,
 }) => {
     const [formData, setFormData] = useState({
         walkTitle: "",
@@ -109,6 +111,9 @@ export default UploadModal = ({
             const { walk } = addedWalk;
             setUploadedWalk(walk);
             setUploadError(null);
+            setUserLocationHistory([]);
+            setTotalDistance(0);
+            setTotalAscent(0);
         })
         .catch((error) => {
             console.log('Error uploading walk: ', error)
@@ -132,6 +137,7 @@ export default UploadModal = ({
             selectedDifficulty: null,
         });
         setIsModalVisible(false);
+        setUploadError(null)
     };
 
     const handleClose = () => {
