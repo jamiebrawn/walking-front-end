@@ -56,6 +56,14 @@ export default UploadModal = ({
             return;
         }
 
+        const difficultyToNumber = (input) => {
+            if (input === 'easy') return 2
+            if (input === 'moderate') return 5
+            if (input === 'challenging') return 8
+        }
+
+        const difficultyAsNum = difficultyToNumber(formData.selectedDifficulty) || null;
+
         const walkObject = {
             // walk: {
             //     creator_id: 1, //Hardcoded for now but ultimately will need to use logged in users id
@@ -76,7 +84,7 @@ export default UploadModal = ({
                 description: formData.walkDescription,
             distance_km: 18,
                 ascent: 900,
-                difficulty: formData.selectedDifficulty || null,
+                difficulty: difficultyAsNum,
                 start_latitude: 53.52989,
                 start_longitude: -2.02364,
                 start_altitude: 242,
