@@ -5,7 +5,7 @@ import MapView, {
   Polyline,
 } from "react-native-maps";
 import * as Location from "expo-location";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View, Platform } from "react-native";
 import { Portal, Modal, Text, Button, Icon } from "react-native-paper";
 import haversine from "haversine-distance";
 import UploadModal from "../components/UploadModal";
@@ -110,11 +110,18 @@ export default RecordScreen = () => {
     setIsTracking(false);
   };
 
-  const tileUrl = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
+  const tileUrl = "https://tile.openstreetmap.de/{z}/{x}/{y}.png";
 
   return (
     <>
-      <UploadModal isModalVisible={isModalVisible} setIsModalVisible={setIsModalVisible} userLocationHistory={userLocationHistory} totalDistance={totalDistance} totalAscent={totalAscent} setUserLocationHistory={setUserLocationHistory} />
+      <UploadModal
+        isModalVisible={isModalVisible}
+        setIsModalVisible={setIsModalVisible}
+        userLocationHistory={userLocationHistory}
+        totalDistance={totalDistance}
+        totalAscent={totalAscent}
+        setUserLocationHistory={setUserLocationHistory}
+      />
       <View style={styles.container}>
         <View style={styles.mapContainer}>
           {region && (
@@ -124,6 +131,7 @@ export default RecordScreen = () => {
               provider={PROVIDER_DEFAULT}
               showsUserLocation={true}
               showsMyLocationButton={true}
+              mapType={Platform.OS == "android" ? "none" : "standard"}
             >
               <UrlTile
                 urlTemplate={tileUrl}
