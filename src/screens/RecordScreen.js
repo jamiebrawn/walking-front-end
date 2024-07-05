@@ -67,7 +67,7 @@ export default RecordScreen = () => {
           const newLocation = {
             latitude: location.coords.latitude,
             longitude: location.coords.longitude,
-            altitude: location.coords.altitude,
+            altitude: location.coords.altitude.toFixed(2),
           };
 
           // Check for significant changes in location before updating
