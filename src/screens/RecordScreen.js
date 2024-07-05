@@ -85,7 +85,7 @@ export default RecordScreen = () => {
               const updatedHistory = [...prev, newLocation];
               console.log("Updated user location history:", updatedHistory);
               setTotalDistance(
-                (previousDistance) => previousDistance + distanceMoved
+                (previousDistance) => previousDistance + distanceMoved / 1000
               );
               setTotalAscent((previousAscent) => previousAscent + ascent);
               return updatedHistory;
@@ -154,7 +154,7 @@ export default RecordScreen = () => {
           <View style={styles.metric}>
             <Icon source="walk" size={30} />
             <Text variant="displaySmall">
-              {(totalDistance / 1000).toFixed(2)}km
+              {(totalDistance).toFixed(2)}km
               {/* {totalDistance.toFixed(2)}m */}
             </Text>
           </View>
