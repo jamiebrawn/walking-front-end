@@ -82,19 +82,19 @@ export default UploadModal = ({
                 start_altitude: 242,
             },
             locations: [
-                {"latitude": 53.52989, "longitude": -2.02364},
-                {"latitude": 53.52986, "longitude": -2.02364},
-                {"latitude": 53.52962, "longitude": -2.02399},
-                {"latitude": 53.52949, "longitude": -2.02431},
-                {"latitude": 53.52931, "longitude": -2.02443},
-                {"latitude": 53.52926, "longitude": -2.02453},
-                {"latitude": 53.52923, "longitude": -2.02462},
-                {"latitude": 53.5285, "longitude": -2.02483},
-                {"latitude": 53.52849, "longitude": -2.02479},
-                {"latitude": 53.52838, "longitude": -2.02433},
-                {"latitude": 53.5284, "longitude": -2.02422},
-                {"latitude": 53.52848, "longitude": -2.02398},
-                {"latitude": 53.5284, "longitude": -2.02334}
+                {"latitude": 53.52989, "longitude": -2.02364, "altitude": 123 },
+                {"latitude": 53.52986, "longitude": -2.02364, "altitude": 123 },
+                {"latitude": 53.52962, "longitude": -2.02399, "altitude": 123 },
+                {"latitude": 53.52949, "longitude": -2.02431, "altitude": 123 },
+                {"latitude": 53.52931, "longitude": -2.02443, "altitude": 123 },
+                {"latitude": 53.52926, "longitude": -2.02453, "altitude": 123 },
+                {"latitude": 53.52923, "longitude": -2.02462, "altitude": 123 },
+                {"latitude": 53.5285, "longitude": -2.02483, "altitude": 123 },
+                {"latitude": 53.52849, "longitude": -2.02479, "altitude": 123 },
+                {"latitude": 53.52838, "longitude": -2.02433, "altitude": 123 },
+                {"latitude": 53.5284, "longitude": -2.02422, "altitude": 123 },
+                {"latitude": 53.52848, "longitude": -2.02398, "altitude": 123 },
+                {"latitude": 53.5284, "longitude": -2.02334, "altitude": 123 }
             ],
         };
         addWalk(walkObject).then((addedWalk) => {

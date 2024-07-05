@@ -109,12 +109,12 @@ export default Home = () => {
               flipY={false}
               tileSize={256}
             />
-            {walks.map((walk) => (
+            {walks && walks.map((walk) => (
               <Marker
                 key={walk.id}
                 coordinate={{
-                  latitude: walk.start_latitude,
-                  longitude: walk.start_longitude,
+                  latitude: parseFloat(walk.start_latitude),
+                  longitude: parseFloat(walk.start_longitude),
                 }}
                 title={walk.title}
                 description={walk.description}
