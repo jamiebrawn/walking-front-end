@@ -51,7 +51,7 @@ export default RecordScreen = () => {
       const initialLocation = {
         latitude: location.coords.latitude,
         longitude: location.coords.longitude,
-        altitude: location.coords.altitude,
+        altitude: location.coords.altitude.toFixed(2),
       };
       setUserLocationHistory([initialLocation]);
       console.log("Initial location:", initialLocation);
