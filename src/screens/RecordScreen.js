@@ -121,6 +121,8 @@ export default RecordScreen = () => {
         totalDistance={totalDistance}
         totalAscent={totalAscent}
         setUserLocationHistory={setUserLocationHistory}
+        setTotalDistance={setTotalDistance}
+        setTotalAscent={setTotalAscent}
       />
       <View style={styles.container}>
         <View style={styles.mapContainer}>
@@ -155,7 +157,6 @@ export default RecordScreen = () => {
             <Icon source="walk" size={30} />
             <Text variant="displaySmall">
               {(totalDistance).toFixed(2)}km
-              {/* {totalDistance.toFixed(2)}m */}
             </Text>
           </View>
           <View style={styles.metric}>
