@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, Platform } from "react-native";
 import MapView, { Polyline, UrlTile } from "react-native-maps";
 import { useRoute } from "@react-navigation/native";
 import { getWalkLocationPoints } from "../utils/api";
