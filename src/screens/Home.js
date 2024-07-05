@@ -24,7 +24,15 @@ export default Home = () => {
     const fetchWalks = async () => {
       try {
         const walksData = await getWalks();
-        setWalks(walksData);
+        const convertedWalksData = walksData.map(walk => ({
+          ...walk,
+          distance_km: parseFloat(walk.distance_km),
+          ascent: parseFloat(walk.ascent),
+          start_latitude: parseFloat(walk.start_latitude),
+          start_longitude: parseFloat(walk.start_longitude),
+          start_altitude: parseFloat(walk.start_altitude)
+        }));
+        setWalks(convertedWalksData);
       } catch (error) {
         console.error("Error retrieving walks:", error);
       }
@@ -113,8 +121,8 @@ export default Home = () => {
               <Marker
                 key={walk.id}
                 coordinate={{
-                  latitude: parseFloat(walk.start_latitude),
-                  longitude: parseFloat(walk.start_longitude),
+                  latitude: walk.start_latitude,
+                  longitude: walk.start_longitude,
                 }}
                 title={walk.title}
                 description={walk.description}

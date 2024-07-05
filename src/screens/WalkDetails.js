@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { View, Text, StyleSheet } from "react-native";
-import MapView, { Polyline } from "react-native-maps";
+import MapView, { Polyline, UrlTile } from "react-native-maps";
 import { useRoute } from "@react-navigation/native";
 import { getWalkLocationPoints } from "../utils/api";
 
@@ -9,20 +9,47 @@ export default function WalkDetails() {
   const { walk } = route.params;
   const [locationPoints, setLocationPoints] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [region, setRegion] = useState(null);
 
   useEffect(() => {
     const getLocationPoints = async () => {
       try {
         const points = await getWalkLocationPoints(walk.id);
-        setLocationPoints(points);
+        const convertedPointsData = points.map((point) => ({
+          ...point,
+          latitude: parseFloat(point.latitude),
+          longitude: parseFloat(point.longitude),
+          altitude: parseFloat(point.altitude),
+        }));
+        setLocationPoints(convertedPointsData);
       } catch (error) {
-        console.error("Error retreiving location points:", error);
+        console.error("Error retrieving location points:", error);
       }
       setIsLoading(false);
     };
 
     getLocationPoints();
   }, [walk.id]);
+
+  useEffect(() => {
+    if (locationPoints.length > 0) {
+      const latitudes = locationPoints.map((point) => point.latitude);
+      const longitudes = locationPoints.map((point) => point.longitude);
+      const minLat = Math.min(...latitudes);
+      const maxLat = Math.max(...latitudes);
+      const minLong = Math.min(...longitudes);
+      const maxLong = Math.max(...longitudes);
+
+      setRegion({
+        latitude: (minLat + maxLat) / 2,
+        longitude: (minLong + maxLong) / 2,
+        latitudeDelta: (maxLat - minLat) * 1.2,
+        longitudeDelta: (maxLong - minLong) * 1.2,
+      });
+    }
+  }, [locationPoints]);
+
+  const tileUrl = "https://tile.openstreetmap.de/{z}/{x}/{y}.png";
 
   if (isLoading) {
     return (
@@ -34,18 +61,32 @@ export default function WalkDetails() {
 
   return (
     <View style={styles.container}>
-      <MapView style={styles.map}>
-        {locationPoints.length > 0 && (
-          <Polyline
-            coordinates={locationPoints.map((point) => ({
-              latitude: point.latitude,
-              longitude: point.longitude,
-            }))}
-            strokeColor="#FF0000"
-            strokeWidth={2}
+      {region && (
+        <MapView
+          style={styles.map}
+          initialRegion={region}
+          showsUserLocation={true}
+          showsMyLocationButton={true}
+          mapType={Platform.OS == "android" ? "none" : "standard"}
+        >
+          <UrlTile
+            urlTemplate={tileUrl}
+            maximumZ={19}
+            flipY={false}
+            tileSize={256}
           />
-        )}
-      </MapView>
+          {locationPoints.length > 0 && (
+            <Polyline
+              coordinates={locationPoints.map((point) => ({
+                latitude: point.latitude,
+                longitude: point.longitude,
+              }))}
+              strokeColor="#FF0000"
+              strokeWidth={2}
+            />
+          )}
+        </MapView>
+      )}
       <View style={styles.detailsContainer}>
         <Text style={styles.title}>{walk.title}</Text>
         <Text>{walk.description}</Text>
@@ -71,5 +112,10 @@ const styles = StyleSheet.create({
   },
   detailsContainer: {
     flex: 1,
+    padding: 16,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
   },
 });

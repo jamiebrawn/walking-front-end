@@ -16,7 +16,7 @@ export const getWalks = async () => {
 
 export const getWalkLocationPoints = async (walkId) => {
   const response = await walksApi.get(
-    `/walks/${walkId}/walk_location_points`
+    `/walklocationpoints/${walkId}`
   );
   return response.data.locationPoints;
 };
