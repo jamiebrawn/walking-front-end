@@ -5,6 +5,7 @@ import BottomNavComponent from "./src/components/BottomNavComponent";
 import WalkDetails from "./src/screens/WalkDetails";
 import SignIn from "./src/screens/SignIn";
 import { AuthProvider, useAuth } from "./src/contexts/AuthContext";
+import SplashScreen from "./src/screens/SplashScreen";
 
 const Stack = createStackNavigator();
 

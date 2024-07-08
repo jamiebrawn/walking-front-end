@@ -1,7 +1,9 @@
-import { View, Text, StyleSheet, ActivityIndicator } from "react-native";
+import { View, StyleSheet, ActivityIndicator } from "react-native";
+import {Text} from "react-native-paper"
 
-const SplashScreen = () => (
+export default SplashScreen = () => (
   <View style={styles.container}>
+  <Text variant="titleLarge">Heyyyy</Text>
     <ActivityIndicator size="large" />
     <Text>Loading...</Text>
   </View>
@@ -14,5 +16,3 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 });
-
-export default SplashScreen;

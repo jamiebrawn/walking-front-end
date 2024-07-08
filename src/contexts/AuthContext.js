@@ -10,6 +10,14 @@ export const AuthProvider = ({ children }) => {
   const [isSignout, setIsSignout] = useState(false);
 
   useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
     const loadUser = async () => {
       try {
         const storedUser = await SecureStore.getItemAsync("user");
@@ -27,11 +35,18 @@ export const AuthProvider = ({ children }) => {
   const signIn = async (username, password) => {
     try {
       const response = await logIn(username, password);
-      setUser(response);
-      await SecureStore.setItemAsync("user", JSON.stringify(response));
-      setIsSignout(false);
+      if (response.status === 200) {
+        setUser(response.data.user);
+        await SecureStore.setItemAsync(
+          "user",
+          JSON.stringify(response.data.user)
+        );
+        setIsSignout(false);
+      } else {
+        throw new Error(response.data.message);
+      }
     } catch (error) {
-      console.error("Failed to sign in:", error);
+      throw error;
     }
   };
 
@@ -40,10 +55,6 @@ export const AuthProvider = ({ children }) => {
     await SecureStore.deleteItemAsync("user");
     setIsSignout(true);
   };
-
-  if (isLoading) {
-    return null;
-  }
 
   return (
     <AuthContext.Provider

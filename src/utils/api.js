@@ -38,8 +38,8 @@ export const getWalksByUserId = async (userId) => {
 
 export const logIn = async (username, password) => {
   try {
-    const response = await walksApi.post(`/user/login`, {username, password} );
-    return response.data.user;
+    const response = await walksApi.post(`/user/login`, { username, password });
+    return response;
   } catch (error) {
     throw error;
   }
