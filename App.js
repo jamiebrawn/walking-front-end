@@ -14,7 +14,7 @@ export default App = () => {
           <Stack.Screen
             name="BottomNav"
             component={BottomNavComponent}
-            // options={{ headerShown: false }}
+            options={{ headerShown: false }}
           />
           <Stack.Screen
             name="WalkDetails"
