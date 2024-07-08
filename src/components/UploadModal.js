@@ -25,6 +25,7 @@ export default UploadModal = ({
     const [uploadedWalk, setUploadedWalk] = useState(null);
     const [formErrors, setFormErrors] = useState({});
     const [uploadError, setUploadError] = useState(null);
+    const [isUploading, setIsUploading] = useState(false)
 
 
     useEffect(() => {
@@ -40,6 +41,7 @@ export default UploadModal = ({
     ];
 
     const handleSave = () => {
+        setIsUploading(true)
 
         let errors = {};
 
@@ -110,6 +112,7 @@ export default UploadModal = ({
         addWalk(walkObject).then((addedWalk) => {
             const { walk } = addedWalk;
             setUploadedWalk(walk);
+            setIsUploading(false)
             setUploadError(null);
             setUserLocationHistory([]);
             setTotalDistance(0);
@@ -251,8 +254,9 @@ export default UploadModal = ({
                                         mode="contained"
                                         style={styles.button}
                                         accessibilityLabel="Upload walk"
+                                        disabled={isUploading ? true : false}
                                     >
-                                        Upload
+                                        {isUploading ? "Uploading..." : "Upload"}
                                     </Button>
                                     <Button
                                         onPress={handleDiscard}
