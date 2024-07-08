@@ -1,28 +1,36 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
+import * as SecureStore from 'expo-secure-store';
+import { login as loginApi } from '../utils/api';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const loadUser = async () => {
-      const storedUser = await AsyncStorage.getItem('user');
-      if (storedUser) {
-        setUser(JSON.parse(storedUser));
+      try {
+        const storedUser = await SecureStore.getItemAsync('user');
+        if (storedUser) {
+          setUser(JSON.parse(storedUser));
+        }
+      } catch (error) {
+        console.error('Failed to load user:', error);
       }
+      setIsLoading(false);
     };
     loadUser();
   }, []);
 
   const signIn = async (username, password) => {
     try {
-      const response = await axios.post('your-api-url/login', { username, password });
-      if (response.data.success) {
-        setUser(response.data.user);
-        await AsyncStorage.setItem('user', JSON.stringify(response.data.user));
+      const response = await loginApi(username, password);
+      if (response.success) {
+        setUser(response.user);
+        await SecureStore.setItemAsync('user', JSON.stringify(response.user));
+      } else {
+        console.error('Failed to sign in: Invalid credentials');
       }
     } catch (error) {
       console.error('Failed to sign in:', error);
@@ -31,8 +39,12 @@ export const AuthProvider = ({ children }) => {
 
   const signOut = async () => {
     setUser(null);
-    await AsyncStorage.removeItem('user');
+    await SecureStore.deleteItemAsync('user');
   };
+
+  if (isLoading) {
+    return null;
+  }
 
   return (
     <AuthContext.Provider value={{ user, signIn, signOut }}>

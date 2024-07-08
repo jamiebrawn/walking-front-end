@@ -14,7 +14,11 @@
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
-        "UIBackgroundModes": ["location", "fetch", "remote-notification"],
+        "UIBackgroundModes": [
+          "location",
+          "fetch",
+          "remote-notification"
+        ],
         "NSLocationAlwaysAndWhenInUseUsageDescription": "We need your location to provide tracking functionality in-app and in the background",
         "NSLocationAlwaysUsageDescription": "We need your location to provide tracking functionality in the background",
         "NSLocationWhenInUseUsageDescription": "We need your location to provide tracking functionality"
@@ -38,7 +42,8 @@
           "isIosBackgroundLocationEnabled": true,
           "isAndroidBackgroundLocationEnabled": true
         }
-      ]
+      ],
+      "expo-secure-store"
     ]
   }
 }
