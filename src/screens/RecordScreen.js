@@ -155,9 +155,7 @@ export default RecordScreen = () => {
         <View style={styles.info}>
           <View style={styles.metric}>
             <Icon source="walk" size={30} />
-            <Text variant="displaySmall">
-              {(totalDistance).toFixed(2)}km
-            </Text>
+            <Text variant="displaySmall">{totalDistance.toFixed(2)}km</Text>
           </View>
           <View style={styles.metric}>
             <Icon source="slope-uphill" size={30} />

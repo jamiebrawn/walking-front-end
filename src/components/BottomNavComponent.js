@@ -8,20 +8,20 @@ const TrailsRoute = () => <Home />;
 
 const RecordRoute = () => <RecordScreen />;
 
-const ProfileRoute = () => <Profile />
+const ProfileRoute = () => <Profile />;
 
 export default BottomNavComponent = () => {
   const [index, setIndex] = useState(0);
   const [routes] = useState([
     { key: "trails", title: "Trails", focusedIcon: "map" },
     { key: "record", title: "Record", focusedIcon: "record-circle-outline" },
-    { key: "profile", title: "Profile", focusedIcon: "account"}
+    { key: "profile", title: "Profile", focusedIcon: "account" },
   ]);
 
   const renderScene = BottomNavigation.SceneMap({
     trails: TrailsRoute,
     record: RecordRoute,
-    profile: ProfileRoute
+    profile: ProfileRoute,
   });
 
   return (

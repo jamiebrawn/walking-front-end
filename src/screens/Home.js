@@ -24,13 +24,13 @@ export default Home = () => {
     const fetchWalks = async () => {
       try {
         const walksData = await getWalks();
-        const convertedWalksData = walksData.map(walk => ({
+        const convertedWalksData = walksData.map((walk) => ({
           ...walk,
           distance_km: parseFloat(walk.distance_km),
           ascent: parseFloat(walk.ascent),
           start_latitude: parseFloat(walk.start_latitude),
           start_longitude: parseFloat(walk.start_longitude),
-          start_altitude: parseFloat(walk.start_altitude)
+          start_altitude: parseFloat(walk.start_altitude),
         }));
         setWalks(convertedWalksData);
       } catch (error) {
@@ -117,18 +117,19 @@ export default Home = () => {
               flipY={false}
               tileSize={256}
             />
-            {walks && walks.map((walk) => (
-              <Marker
-                key={walk.id}
-                coordinate={{
-                  latitude: walk.start_latitude,
-                  longitude: walk.start_longitude,
-                }}
-                title={walk.title}
-                description={walk.description}
-                onPress={() => handleMarkerPress(walk)}
-              />
-            ))}
+            {walks &&
+              walks.map((walk) => (
+                <Marker
+                  key={walk.id}
+                  coordinate={{
+                    latitude: walk.start_latitude,
+                    longitude: walk.start_longitude,
+                  }}
+                  title={walk.title}
+                  description={walk.description}
+                  onPress={() => handleMarkerPress(walk)}
+                />
+              ))}
           </MapView>
         )
       ) : (

@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from "react-native";
 
 const WalkCard = ({ walk }) => {
   return (
@@ -17,13 +17,13 @@ const styles = StyleSheet.create({
   card: {
     padding: 16,
     marginVertical: 8,
-    backgroundColor: 'white',
+    backgroundColor: "white",
     borderRadius: 8,
     elevation: 1,
   },
   title: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
 });
 

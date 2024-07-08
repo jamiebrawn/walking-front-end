@@ -1,15 +1,17 @@
-import axios from 'axios'
+import axios from "axios";
 
-const walksApi = axios.create ({ baseURL: "https://the-way-i-walk.onrender.com/api"});
+const walksApi = axios.create({
+  baseURL: "https://the-way-i-walk.onrender.com/api",
+});
 
 export const addWalk = async (walkObject) => {
   try {
     const { data } = await walksApi.post("/walks", walkObject);
     return data;
-    } catch(error) {
-        throw error;
-    }
-}
+  } catch (error) {
+    throw error;
+  }
+};
 
 export const getWalks = async () => {
   const response = await walksApi.get(`/walks`);
@@ -18,20 +20,25 @@ export const getWalks = async () => {
 
 export const getWalkLocationPoints = async (walkId) => {
   try {
-    const response = await walksApi.get(
-    `/walklocationpoints/${walkId}`
-    );
+    const response = await walksApi.get(`/walklocationpoints/${walkId}`);
     return response.data.locationPoints;
-    } catch(error) {
-      throw error;
-    }
+  } catch (error) {
+    throw error;
+  }
 };
 
 export const getWalksByUserId = async (userId) => {
   try {
     const { data } = await walksApi.get(`/walks/${userId}`);
     return data;
-  } catch(error) {
+  } catch (error) {
     throw error;
   }
-}
+};
+
+export const getUser = async (username, password) => {
+  const response = await walksApi.get(`/user`, {
+    params: { username: username, password: password },
+  });
+  return response.data;
+};
