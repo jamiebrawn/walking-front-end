@@ -1,11 +1,11 @@
 import { createContext, useState, useContext, useEffect } from "react";
 import * as SecureStore from "expo-secure-store";
-import { getUser } from "../utils/api";
+import { logIn } from "../utils/api";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(false);
+  const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSignout, setIsSignout] = useState(false);
 
@@ -26,14 +26,10 @@ export const AuthProvider = ({ children }) => {
 
   const signIn = async (username, password) => {
     try {
-      const response = await getUser(username, password);
-      if (response.success) {
-        setUser(response.user);
-        await SecureStore.setItemAsync("user", JSON.stringify(response.user));
-        setIsSignout(false);
-      } else {
-        console.error("Failed to sign in: Invalid credentials");
-      }
+      const response = await logIn(username, password);
+      setUser(response);
+      await SecureStore.setItemAsync("user", JSON.stringify(response));
+      setIsSignout(false);
     } catch (error) {
       console.error("Failed to sign in:", error);
     }

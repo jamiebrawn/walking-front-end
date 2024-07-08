@@ -26,7 +26,7 @@ export default Profile = () => {
 
   useEffect(() => {
     setIsLoading(true);
-    getWalks(1);
+    getWalks(user.id);
   }, []);
 
   const handleCardPress = (walk) => {
@@ -35,14 +35,14 @@ export default Profile = () => {
 
   return (
     <View style={styles.mainView}>
-      <Text>Username: {user.username}</Text>
+    {user && <Text>Username: {user.username}</Text>}
       <Text style={styles.centeredText} variant="displayMedium">
         Profile
       </Text>
       <Text style={styles.centeredText} variant="headlineLarge">
         Your Walks
       </Text>
-      {userWalks ? (
+      {userWalks.length > 0 ? (
         //  userWalks.map((walk) => (
         <FlatList
           data={userWalks}

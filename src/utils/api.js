@@ -36,9 +36,11 @@ export const getWalksByUserId = async (userId) => {
   }
 };
 
-export const getUser = async (username, password) => {
-  const response = await walksApi.get(`/user`, {
-    params: { username: username, password: password },
-  });
-  return response.data;
+export const logIn = async (username, password) => {
+  try {
+    const response = await walksApi.post(`/user/login`, {username, password} );
+    return response.data.user;
+  } catch (error) {
+    throw error;
+  }
 };

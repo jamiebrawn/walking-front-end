@@ -5,6 +5,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import Dropdown from "./form-components/DropDown";
 import { addWalk } from "../utils/api";
 import { validateTextInputContent, validateTextInputLength } from "../utils/formValidations";
+import { useAuth } from "../contexts/AuthContext";
 
 export default UploadModal = ({
     isModalVisible,
@@ -26,6 +27,7 @@ export default UploadModal = ({
     const [formErrors, setFormErrors] = useState({});
     const [uploadError, setUploadError] = useState(null);
     const [isUploading, setIsUploading] = useState(false)
+    const { user } = useAuth();
 
 
     useEffect(() => {
@@ -70,7 +72,7 @@ export default UploadModal = ({
 
         const walkObject = {
             walk: {
-                creator_id: 1, //Hardcoded for now but ultimately will need to use logged in users id
+                creator_id: user.id, //Hardcoded for now but ultimately will need to use logged in users id
                 title: formData.walkTitle,
                 description: formData.walkDescription,
                 distance_km: totalDistance,
