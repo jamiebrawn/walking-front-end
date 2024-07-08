@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const walksApi = axios.create({
-  baseUrl: "https://the-way-i-walk.onrender.com/api",
+  baseURL: "https://the-way-i-walk.onrender.com/api",
 });
 
 export const addWalk = (walkObject) => {
@@ -23,10 +23,9 @@ export const getWalkLocationPoints = async (walkId) => {
   return response.data.locationPoints;
 };
 
-export const login = async (username, password) => {
-  const response = await axios.post(`${API_BASE_URL}/login`, {
-    username,
-    password,
+export const getUser = async (username, password) => {
+  const response = await walksApi.get(`/user`, {
+    params: { username: username, password: password },
   });
   return response.data;
 };
