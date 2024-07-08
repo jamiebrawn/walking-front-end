@@ -32,7 +32,7 @@ export default User = () => {
     };
     
     return (
-        <View>
+        <View style={styles.mainView} >
             {/* {Add username to profile when linked to userContext} */}
             <Text style={styles.centeredText} variant="displayMedium" >Profile</Text>
             <Text style={styles.centeredText} variant="headlineLarge" >Your Walks</Text>
@@ -59,4 +59,7 @@ const styles = StyleSheet.create({
         textAlign: "center",
         marginVertical: 5,
     },
+    mainView: {
+        paddingTop: 30,
+    }
 })
