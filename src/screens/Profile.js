@@ -57,7 +57,9 @@ export default Profile = () => {
         //  ))
         <Text>You haven't uploaded any walks yet.</Text>
       )}
-      <Button title="Sign Out" onPress={signOut} />
+      <Button mode="contained" onPress={signOut}>
+        Sign Out
+      </Button>
     </View>
   );
 };
