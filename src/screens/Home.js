@@ -159,6 +159,7 @@ export default Home = (refreshWalkList, setRefreshWalkList) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingTop: 25
   },
   toggleContainer: {
     flexDirection: "row",

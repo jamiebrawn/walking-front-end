@@ -6,7 +6,7 @@ import MapView, {
 } from "react-native-maps";
 import * as Location from "expo-location";
 import { StyleSheet, View, Platform } from "react-native";
-import { Portal, Modal, Text, Button, Icon } from "react-native-paper";
+import { Text, Button, Icon } from "react-native-paper";
 import haversine from "haversine-distance";
 import UploadModal from "../components/UploadModal";
 
