@@ -4,6 +4,7 @@ import { PaperProvider } from "react-native-paper";
 import BottomNavComponent from "./src/components/BottomNavComponent";
 import WalkDetails from "./src/screens/WalkDetails";
 import SignIn from "./src/screens/SignIn";
+import FollowRoute from "./src/screens/FollowRoute";
 import { AuthProvider, useAuth } from "./src/contexts/AuthContext";
 import SplashScreen from "./src/screens/SplashScreen";
 
@@ -50,6 +51,11 @@ const MainNavigator = () => {
             name="WalkDetails"
             component={WalkDetails}
             options={{ title: "Walk Details" }}
+          />
+          <Stack.Screen
+            name="FollowRoute"
+            component={FollowRoute}
+            options={{ title: "Follow Route" }}
           />
         </>
       )}
