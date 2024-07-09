@@ -8,7 +8,7 @@ import {useAuth}  from '../contexts/AuthContext';
 
 export default function WalkDetails() {
   const route = useRoute();
-  const { walk } = route.params;
+  const { walk, setRefreshWalkList } = route.params;
   const [locationPoints, setLocationPoints] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [region, setRegion] = useState(null);
@@ -103,7 +103,7 @@ export default function WalkDetails() {
         <Text>Start Altitude: {walk.start_altitude} m</Text>
       </View>
       {/* <DeleteButton walkId ={walk.id}/> */}
-      {walk.creator_id === user.id && <DeleteButton walkId ={walk.id}/> }
+      {walk.creator_id === user.id && <DeleteButton walkId ={walk.id} setRefreshWalkList={setRefreshWalkList}/> }
     </View>
   );
 }

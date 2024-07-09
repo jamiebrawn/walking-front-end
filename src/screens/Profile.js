@@ -7,7 +7,7 @@ import { getWalksByUserId } from "../utils/api";
 import WalkCard from "../components/WalkCard";
 import { useAuth } from "../contexts/AuthContext";
 
-export default Profile = () => {
+export default Profile = ({setRefreshWalkList}) => {
   const { user, signOut } = useAuth();
   const [userWalks, setUserWalks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -30,7 +30,7 @@ export default Profile = () => {
   }, []);
 
   const handleCardPress = (walk) => {
-    navigation.navigate("WalkDetails", { walk });
+    navigation.navigate("WalkDetails", { walk, setRefreshWalkList });
   };
 
   return (

@@ -4,7 +4,7 @@ import { useNavigation } from "@react-navigation/native";
 import { deleteWalk } from "../utils/api";
 import { View, StyleSheet } from "react-native";
 
-export default DeleteButton = ({ walkId }) => {
+export default DeleteButton = ({ walkId, setRefreshWalkList }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState(false);
@@ -20,6 +20,7 @@ export default DeleteButton = ({ walkId }) => {
       throw error;
     } finally {
       setIsDeleting(false);
+      setRefreshWalkList(prev => !prev)
     }
   };
 
