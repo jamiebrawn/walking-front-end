@@ -2,11 +2,12 @@ import { useState, useEffect } from "react";
 import { View, Text, StyleSheet, Platform } from "react-native";
 import MapView, { Polyline, UrlTile } from "react-native-maps";
 import { useRoute, useNavigation } from "@react-navigation/native";
-import { getWalkLocationPoints } from "../utils/api";
 import DeleteButton from "../components/DeleteButton";
 import { useAuth } from "../contexts/AuthContext";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Button } from "react-native-paper";
+import { getLocationPoints } from "../utils/helpers";
+
 
 export default function WalkDetails() {
     const route = useRoute();
@@ -18,24 +19,23 @@ export default function WalkDetails() {
     const { user } = useAuth();
 
     useEffect(() => {
-        const getLocationPoints = async () => {
-            try {
-                const points = await getWalkLocationPoints(walk.id);
-                const convertedPointsData = points.map((point) => ({
-                    ...point,
-                    latitude: parseFloat(point.latitude),
-                    longitude: parseFloat(point.longitude),
-                    altitude: parseFloat(point.altitude),
-                }));
-                setLocationPoints(convertedPointsData);
-            } catch (error) {
-                console.error("Error retrieving location points:", error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        getLocationPoints();
+        // const getLocationPoints = async () => {
+        //     try {
+        //         const points = await getWalkLocationPoints(walk.id);
+        //         const convertedPointsData = points.map((point) => ({
+        //             ...point,
+        //             latitude: parseFloat(point.latitude),
+        //             longitude: parseFloat(point.longitude),
+        //             altitude: parseFloat(point.altitude),
+        //         }));
+        //         setLocationPoints(convertedPointsData);
+        //     } catch (error) {
+        //         console.error("Error retrieving location points:", error);
+        //     } finally {
+        //         setIsLoading(false);
+        //     }
+        // };
+        getLocationPoints(walk.id, setLocationPoints, setIsLoading);
     }, [walk.id]);
 
     useEffect(() => {
