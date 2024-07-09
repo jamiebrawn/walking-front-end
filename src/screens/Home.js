@@ -7,13 +7,16 @@ import {
   Switch,
   TouchableOpacity,
   Platform,
+  Dimensions,
+  Modal,
+  Animated,
 } from "react-native";
+import { IconButton, ActivityIndicator } from "react-native-paper";
 import MapView, { Marker, UrlTile } from "react-native-maps";
 import { useNavigation } from "@react-navigation/native";
 import * as Location from "expo-location";
 import { getWalks } from "../utils/api";
 import WalkCard from "../components/WalkCard";
-import { ActivityIndicator } from "react-native-paper";
 
 export default Home = (refreshWalkList, setRefreshWalkList) => {
   const [walks, setWalks] = useState([]);
@@ -21,7 +24,10 @@ export default Home = (refreshWalkList, setRefreshWalkList) => {
   const [mapReady, setMapReady] = useState(true);
   const [isMapView, setIsMapView] = useState(true);
   const [region, setRegion] = useState(null);
+  const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
   const navigation = useNavigation();
+  const windowHeight = Dimensions.get("window").height;
+  const [slideAnim] = useState(new Animated.Value(-windowHeight * 0.5));
 
   useEffect(() => {
     const fetchWalks = async () => {
@@ -98,42 +104,83 @@ export default Home = (refreshWalkList, setRefreshWalkList) => {
     navigation.navigate("WalkDetails", { walk, setRefreshWalkList });
   };
 
+  const toggleOpenBottomSheet = () => {
+    if (isBottomSheetOpen) {
+      Animated.timing(slideAnim, {
+        toValue: -windowHeight * 0.5,
+        duration: 300,
+        useNativeDriver: false,
+      }).start(() => setIsBottomSheetOpen(false));
+    } else {
+      setIsBottomSheetOpen(true);
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: false,
+      }).start();
+    }
+  };
+
   const tileUrl = "https://tile.openstreetmap.de/{z}/{x}/{y}.png";
 
   return (
     <View style={styles.container}>
-      <View style={styles.toggleContainer}>
-        <Text>{isMapView ? "Map View" : "List View"}</Text>
-        <Switch value={isMapView} onValueChange={toggleView} />
+      <View style={styles.optionsContainer}>
+        <IconButton icon="tune-variant" onPress={toggleOpenBottomSheet} />
+        <View style={styles.toggleContainer}>
+          <Text>{isMapView ? "Map View" : "List View"}</Text>
+          <Switch value={isMapView} onValueChange={toggleView} />
+        </View>
       </View>
+      <Modal
+        animationType="none"
+        transparent={true}
+        visible={isBottomSheetOpen}
+        onRequestClose={toggleOpenBottomSheet}
+      >
+        <Animated.View
+          style={[
+            styles.bottomSheet,
+            { height: windowHeight * 0.5, top: slideAnim },
+          ]}
+        >
+          <View style={styles.sliderIconContainer}>
+            <IconButton icon="tune-variant" onPress={toggleOpenBottomSheet} />
+          </View>
+          <View style={styles.bottomSheetContent}>
+            <Text>I hope you can see me</Text>
+          </View>
+        </Animated.View>
+      </Modal>
+
       {isLoading && <ActivityIndicator style={styles.centre} size="large" />}
       {isMapView ? (
         region && (
           <MapView
-          style={styles.map}
-          initialRegion={region}
-          showsUserLocation={true}
-          showsMyLocationButton={true}
-          mapType={Platform.OS == "android" ? "none" : "standard"}
-          onLayout={() => setMapReady(false)}
+            style={styles.map}
+            initialRegion={region}
+            showsUserLocation={true}
+            showsMyLocationButton={true}
+            mapType={Platform.OS == "android" ? "none" : "standard"}
+            onLayout={() => setMapReady(false)}
           >
             <UrlTile
               urlTemplate={tileUrl}
               maximumZ={19}
               flipY={false}
               tileSize={256}
-              />
+            />
             {walks &&
               walks.map((walk) => (
                 <Marker
-                key={walk.id}
-                coordinate={{
-                  latitude: walk.start_latitude,
-                  longitude: walk.start_longitude,
-                }}
-                title={walk.title}
-                description={walk.description}
-                onPress={() => handleMarkerPress(walk)}
+                  key={walk.id}
+                  coordinate={{
+                    latitude: walk.start_latitude,
+                    longitude: walk.start_longitude,
+                  }}
+                  title={walk.title}
+                  description={walk.description}
+                  onPress={() => handleMarkerPress(walk)}
                 />
               ))}
           </MapView>
@@ -157,16 +204,50 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  optionsContainer: {
+    marginTop: 40,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 10,
+  },
   toggleContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
+    alignItems: "center",
   },
   map: {
-    flex: 1,
+    flex: 15,
   },
   centre: {
     ...StyleSheet.absoluteFillObject,
     justifyContent: "center",
-    alignSelf: "center"
-  }
+    alignSelf: "center",
+  },
+  bottomSheet: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    justifyContent: "flex-start",
+    alignItems: "center",
+    backgroundColor: "white",
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+    // paddingVertical: 23,
+    paddingHorizontal: 10,
+    // borderWidth: 1,
+    // borderColor: "red",
+  },
+  sliderIconContainer: {
+    width: "100%",
+    flexDirection: "row",
+    justifyContent: "start",
+    alignItems: "center",
+  },
+  bottomSheetContent: {
+    flex: 1,
+    width: "100%",
+    justifyContent: "center",
+    alignItems: "center"
+  },
 });
