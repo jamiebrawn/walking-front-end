@@ -18,7 +18,7 @@ import { ActivityIndicator } from "react-native-paper";
 export default Home = (refreshWalkList, setRefreshWalkList) => {
   const [walks, setWalks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [mapReady, setMapReady] = useState(true);
+  const [mapReady, setMapReady] = useState(false);
   const [isMapView, setIsMapView] = useState(true);
   const [region, setRegion] = useState(null);
   const navigation = useNavigation();
@@ -109,34 +109,37 @@ export default Home = (refreshWalkList, setRefreshWalkList) => {
       {isLoading && <ActivityIndicator style={styles.centre} size="large" />}
       {isMapView ? (
         region && (
-          <MapView
-          style={styles.map}
-          initialRegion={region}
-          showsUserLocation={true}
-          showsMyLocationButton={true}
-          mapType={Platform.OS == "android" ? "none" : "standard"}
-          onLayout={() => setMapReady(false)}
-          >
-            <UrlTile
-              urlTemplate={tileUrl}
-              maximumZ={19}
-              flipY={false}
-              tileSize={256}
-              />
-            {walks &&
-              walks.map((walk) => (
-                <Marker
-                key={walk.id}
-                coordinate={{
-                  latitude: walk.start_latitude,
-                  longitude: walk.start_longitude,
-                }}
-                title={walk.title}
-                description={walk.description}
-                onPress={() => handleMarkerPress(walk)}
+          <>
+            <MapView
+            style={styles.map}
+            initialRegion={region}
+            showsUserLocation={true}
+            showsMyLocationButton={true}
+            mapType={Platform.OS == "android" ? "none" : "standard"}
+            onLayout={() => setMapReady(true)}
+            >
+              <UrlTile
+                urlTemplate={tileUrl}
+                maximumZ={19}
+                flipY={false}
+                tileSize={256}
                 />
-              ))}
-          </MapView>
+              {walks &&
+                walks.map((walk) => (
+                  <Marker
+                  key={walk.id}
+                  coordinate={{
+                    latitude: walk.start_latitude,
+                    longitude: walk.start_longitude,
+                  }}
+                  title={walk.title}
+                  description={walk.description}
+                  onPress={() => handleMarkerPress(walk)}
+                  />
+                ))}
+            </MapView>
+            {!mapReady && <ActivityIndicator style={styles.centre} size="large" />}
+          </>
         )
       ) : (
         <FlatList
