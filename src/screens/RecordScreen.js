@@ -73,12 +73,12 @@ export default RecordScreen = () => {
           };
 
           if(currentRegion){
-            mapRef.current.animateToRegion({
-              ...newLocation,
-              latitudeDelta: currentRegion.latitudeDelta,
-              longitudeDelta: currentRegion.longitudeDelta,
-            });
-          }
+          mapRef.current.animateToRegion({
+            ...newLocation,
+            latitudeDelta: currentRegion.latitudeDelta,
+            longitudeDelta: currentRegion.longitudeDelta,
+          });
+        }
 
           // Check for significant changes in location before updating
           setUserLocationHistory((prev) => {
