@@ -10,14 +10,15 @@ import {
   Dimensions,
   Modal,
   Animated,
+  Button
 } from "react-native";
 import { IconButton, ActivityIndicator } from "react-native-paper";
 import MapView, { Marker, UrlTile } from "react-native-maps";
 import { useNavigation } from "@react-navigation/native";
 import * as Location from "expo-location";
+import Constants from 'expo-constants';
 import { getWalks } from "../utils/api";
 import WalkCard from "../components/WalkCard";
-import { ActivityIndicator } from "react-native-paper";
 
 export default Home = (refreshWalkList, setRefreshWalkList) => {
   const [walks, setWalks] = useState([]);
@@ -25,7 +26,7 @@ export default Home = (refreshWalkList, setRefreshWalkList) => {
   const [mapReady, setMapReady] = useState(false);
   const [isMapView, setIsMapView] = useState(true);
   const [region, setRegion] = useState(null);
-  const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
+  const [isSliderVisible, setIsSliderVisible] = useState(false);
   const navigation = useNavigation();
   const windowHeight = Dimensions.get("window").height;
   const [slideAnim] = useState(new Animated.Value(-windowHeight * 0.5));
@@ -105,15 +106,15 @@ export default Home = (refreshWalkList, setRefreshWalkList) => {
     navigation.navigate("WalkDetails", { walk, setRefreshWalkList });
   };
 
-  const toggleOpenBottomSheet = () => {
-    if (isBottomSheetOpen) {
+  const toggleSlider = () => {
+    if (isSliderVisible) {
       Animated.timing(slideAnim, {
         toValue: -windowHeight * 0.5,
         duration: 300,
         useNativeDriver: false,
-      }).start(() => setIsBottomSheetOpen(false));
+      }).start(() => setIsSliderVisible(false));
     } else {
-      setIsBottomSheetOpen(true);
+      setIsSliderVisible(true);
       Animated.timing(slideAnim, {
         toValue: 0,
         duration: 300,
@@ -126,67 +127,53 @@ export default Home = (refreshWalkList, setRefreshWalkList) => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.optionsContainer}>
-        <IconButton icon="tune-variant" onPress={toggleOpenBottomSheet} />
+      <View style={styles.header}>
+        <IconButton icon="tune-variant" onPress={toggleSlider} />
         <View style={styles.toggleContainer}>
           <Text>{isMapView ? "Map View" : "List View"}</Text>
           <Switch value={isMapView} onValueChange={toggleView} />
         </View>
       </View>
-      <Modal
-        animationType="none"
-        transparent={true}
-        visible={isBottomSheetOpen}
-        onRequestClose={toggleOpenBottomSheet}
-      >
-        <Animated.View
-          style={[
-            styles.bottomSheet,
-            { height: windowHeight * 0.5, top: slideAnim },
-          ]}
-        >
-          <View style={styles.sliderIconContainer}>
-            <IconButton icon="tune-variant" onPress={toggleOpenBottomSheet} />
-          </View>
-          <View style={styles.bottomSheetContent}>
-            <Text>I hope you can see me</Text>
-          </View>
-        </Animated.View>
-      </Modal>
+      <View style={styles.contentContainer}>
+      <Animated.View style={[styles.sliderView, { transform: [{ translateY: slideAnim }] }]}>
+        <View style={styles.sliderContent}>
+          {/* filters */}
+          <Button title="Slide Content Button" onPress={() => {}} />
+        </View>
+      </Animated.View>
 
-      {isLoading && <ActivityIndicator style={styles.centre} size="large" />}
+      {isLoading && !mapReady && <ActivityIndicator style={styles.centre} size="large" />}
       {isMapView ? (
         region && (
           <>
             <MapView
-            style={styles.map}
-            initialRegion={region}
-            showsUserLocation={true}
-            showsMyLocationButton={true}
-            mapType={Platform.OS == "android" ? "none" : "standard"}
-            onLayout={() => setMapReady(true)}
+              style={styles.map}
+              initialRegion={region}
+              showsUserLocation={true}
+              showsMyLocationButton={true}
+              mapType={Platform.OS == "android" ? "none" : "standard"}
+              onLayout={() => setMapReady(true)}
             >
               <UrlTile
                 urlTemplate={tileUrl}
                 maximumZ={19}
                 flipY={false}
                 tileSize={256}
-                />
+              />
               {walks &&
                 walks.map((walk) => (
                   <Marker
-                  key={walk.id}
-                  coordinate={{
-                    latitude: walk.start_latitude,
-                    longitude: walk.start_longitude,
-                  }}
-                  title={walk.title}
-                  description={walk.description}
-                  onPress={() => handleMarkerPress(walk)}
+                    key={walk.id}
+                    coordinate={{
+                      latitude: walk.start_latitude,
+                      longitude: walk.start_longitude,
+                    }}
+                    title={walk.title}
+                    description={walk.description}
+                    onPress={() => handleMarkerPress(walk)}
                   />
                 ))}
             </MapView>
-            {!mapReady && <ActivityIndicator style={styles.centre} size="large" />}
           </>
         )
       ) : (
@@ -200,66 +187,61 @@ export default Home = (refreshWalkList, setRefreshWalkList) => {
           )}
         />
       )}
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
+    
     flex: 1,
-    paddingTop: 25
   },
-  optionsContainer: {
-    marginTop: 40,
+  header: {
+    zIndex: 2,
+    flex: 1,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     paddingHorizontal: 10,
-  },
-  optionsContainer: {
-    marginTop: 40,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 10,
+    paddingBottom: 10,
+    marginTop: Constants.statusBarHeight,
   },
   toggleContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
+  contentContainer: {
+    zIndex:1,
+    flex: 20,
+  },
   map: {
-    flex: 15,
+    flex: 1,
   },
   centre: {
     ...StyleSheet.absoluteFillObject,
     justifyContent: "center",
     alignSelf: "center",
   },
-  bottomSheet: {
+  sliderView: {
     position: "absolute",
     left: 0,
     right: 0,
+    height: '50%',
+    zIndex: 1,
+    backgroundColor: "white",
+    borderBottomLeftRadius: 10,
+    borderBottomRightRadius: 10,
+    paddingVertical: 23,
+    paddingHorizontal: 10,
     justifyContent: "flex-start",
     alignItems: "center",
-    backgroundColor: "white",
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
-    // paddingVertical: 23,
-    paddingHorizontal: 10,
-    // borderWidth: 1,
-    // borderColor: "red",
   },
-  sliderIconContainer: {
-    width: "100%",
-    flexDirection: "row",
-    justifyContent: "start",
-    alignItems: "center",
-  },
-  bottomSheetContent: {
+  sliderContent: {
     flex: 1,
-    width: "100%",
-    justifyContent: "center",
-    alignItems: "center"
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
+

@@ -9,6 +9,7 @@ import { StyleSheet, View, Platform } from "react-native";
 import { Text, Button, Icon } from "react-native-paper";
 import haversine from "haversine-distance";
 import UploadModal from "../components/UploadModal";
+import Constants from 'expo-constants';
 
 export default RecordScreen = ({setRefreshWalkList}) => {
   const [region, setRegion] = useState(null);
@@ -189,6 +190,7 @@ export default RecordScreen = ({setRefreshWalkList}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    marginTop: Constants.statusBarHeight,
   },
   mapContainer: {
     flex: 19,
