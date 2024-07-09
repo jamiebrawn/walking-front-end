@@ -135,6 +135,8 @@ export default UploadModal = ({
     };
 
     const handleConfirmDiscard = () => {
+        setTotalDistance(0);
+        setTotalAscent(0);
         setUserLocationHistory([]);
         setFormData({
             walkTitle: "",

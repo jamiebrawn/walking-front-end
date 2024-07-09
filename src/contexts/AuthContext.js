@@ -34,6 +34,7 @@ export const AuthProvider = ({ children }) => {
 
   const signIn = async (username, password) => {
     try {
+      setIsLoading(true);
       const response = await logIn(username, password);
       if (response.status === 200) {
         setUser(response.data.user);
@@ -48,6 +49,7 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       throw error;
     }
+    setIsLoading(false);
   };
 
   const signOut = async () => {
