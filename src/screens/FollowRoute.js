@@ -84,12 +84,12 @@ export default FollowRoute = () => {
                             />
                         )}
                         <Marker
-          coordinate={{
-            latitude: walk.start_latitude,
-            longitude: walk.start_longitude,
-          }}
-          title="Start here"
-        />
+                            coordinate={{
+                                latitude: walk.start_latitude,
+                                longitude: walk.start_longitude,
+                            }}
+                            title="Start here"
+                        />
                     </MapView>
                     {!mapReady && (
                         <ActivityIndicator style={styles.centre} size="large" />
