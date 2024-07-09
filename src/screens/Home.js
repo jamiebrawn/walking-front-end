@@ -17,11 +17,12 @@ import { useNavigation } from "@react-navigation/native";
 import * as Location from "expo-location";
 import { getWalks } from "../utils/api";
 import WalkCard from "../components/WalkCard";
+import { ActivityIndicator } from "react-native-paper";
 
 export default Home = (refreshWalkList, setRefreshWalkList) => {
   const [walks, setWalks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [mapReady, setMapReady] = useState(true);
+  const [mapReady, setMapReady] = useState(false);
   const [isMapView, setIsMapView] = useState(true);
   const [region, setRegion] = useState(null);
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
@@ -156,23 +157,24 @@ export default Home = (refreshWalkList, setRefreshWalkList) => {
       {isLoading && <ActivityIndicator style={styles.centre} size="large" />}
       {isMapView ? (
         region && (
-          <MapView
+          <>
+            <MapView
             style={styles.map}
             initialRegion={region}
             showsUserLocation={true}
             showsMyLocationButton={true}
             mapType={Platform.OS == "android" ? "none" : "standard"}
-            onLayout={() => setMapReady(false)}
-          >
-            <UrlTile
-              urlTemplate={tileUrl}
-              maximumZ={19}
-              flipY={false}
-              tileSize={256}
-            />
-            {walks &&
-              walks.map((walk) => (
-                <Marker
+            onLayout={() => setMapReady(true)}
+            >
+              <UrlTile
+                urlTemplate={tileUrl}
+                maximumZ={19}
+                flipY={false}
+                tileSize={256}
+                />
+              {walks &&
+                walks.map((walk) => (
+                  <Marker
                   key={walk.id}
                   coordinate={{
                     latitude: walk.start_latitude,
@@ -181,9 +183,11 @@ export default Home = (refreshWalkList, setRefreshWalkList) => {
                   title={walk.title}
                   description={walk.description}
                   onPress={() => handleMarkerPress(walk)}
-                />
-              ))}
-          </MapView>
+                  />
+                ))}
+            </MapView>
+            {!mapReady && <ActivityIndicator style={styles.centre} size="large" />}
+          </>
         )
       ) : (
         <FlatList
@@ -203,6 +207,14 @@ export default Home = (refreshWalkList, setRefreshWalkList) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingTop: 25
+  },
+  optionsContainer: {
+    marginTop: 40,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 10,
   },
   optionsContainer: {
     marginTop: 40,
