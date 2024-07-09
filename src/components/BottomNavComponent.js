@@ -8,9 +8,9 @@ import Profile from "../screens/Profile";
 export default BottomNavComponent = () => {
   const [index, setIndex] = useState(0);
   const [refreshWalkList, setRefreshWalkList] = useState(false)
-  const TrailsRoute = () => <Home refreshWalkList={refreshWalkList} />;
+  const TrailsRoute = () => <Home refreshWalkList={refreshWalkList} setRefreshWalkList={setRefreshWalkList} />;
   const RecordRoute = () => <RecordScreen setRefreshWalkList={setRefreshWalkList} />;
-  const ProfileRoute = () => <Profile />;
+  const ProfileRoute = () => <Profile setRefreshWalkList={setRefreshWalkList} />;
   const [routes] = useState([
     { key: "trails", title: "Trails", focusedIcon: "map" },
     { key: "record", title: "Record", focusedIcon: "record-circle-outline" },

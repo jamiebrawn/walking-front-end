@@ -15,7 +15,7 @@ import { getWalks } from "../utils/api";
 import WalkCard from "../components/WalkCard";
 import { ActivityIndicator } from "react-native-paper";
 
-export default Home = (refreshWalkList) => {
+export default Home = (refreshWalkList, setRefreshWalkList) => {
   const [walks, setWalks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [mapReady, setMapReady] = useState(true);
@@ -91,11 +91,11 @@ export default Home = (refreshWalkList) => {
   const toggleView = () => setIsMapView(!isMapView);
 
   const handleCardPress = (walk) => {
-    navigation.navigate("WalkDetails", { walk });
+    navigation.navigate("WalkDetails", { walk, setRefreshWalkList });
   };
 
   const handleMarkerPress = (walk) => {
-    navigation.navigate("WalkDetails", { walk });
+    navigation.navigate("WalkDetails", { walk, setRefreshWalkList });
   };
 
   const tileUrl = "https://tile.openstreetmap.de/{z}/{x}/{y}.png";
