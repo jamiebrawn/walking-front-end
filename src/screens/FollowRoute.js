@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useRoute } from "@react-navigation/native";
 import { View, Text, StyleSheet, Platform } from "react-native";
-import MapView, { Polyline, UrlTile } from "react-native-maps";
+import MapView, { Polyline, UrlTile, Marker } from "react-native-maps";
 import { ActivityIndicator } from "react-native-paper";
 import { getWalkLocationPoints } from "../utils/api";
 
@@ -83,6 +83,13 @@ export default FollowRoute = () => {
                                 strokeWidth={2}
                             />
                         )}
+                        <Marker
+          coordinate={{
+            latitude: walk.start_latitude,
+            longitude: walk.start_longitude,
+          }}
+          title="Start here"
+        />
                     </MapView>
                     {!mapReady && (
                         <ActivityIndicator style={styles.centre} size="large" />
