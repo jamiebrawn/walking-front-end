@@ -15,18 +15,13 @@ export default FollowRoute = () => {
 
     useEffect(() => {
         getLocationPoints(walk.id, setLocationPoints, setIsLoading);
+        setRegion({
+            latitude: walk.start_latitude,
+            longitude: walk.start_longitude,
+            latitudeDelta: 0.002,
+            longitudeDelta: 0.002,
+        });
     }, [walk.id]);
-
-    useEffect(() => {
-        if (walk) {
-            setRegion({
-                latitude: walk.start_latitude,
-                longitude: walk.start_longitude,
-                latitudeDelta: 0.002,
-                longitudeDelta: 0.002,
-            });
-        }
-    }, [locationPoints]);
 
     const tileUrl = "https://tile.openstreetmap.de/{z}/{x}/{y}.png";
 
