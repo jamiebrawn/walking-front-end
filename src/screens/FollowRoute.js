@@ -13,7 +13,6 @@ export default FollowRoute = () => {
     const [mapReady, setMapReady] = useState(false);
     const [region, setRegion] = useState(null);
 
-
     useEffect(() => {
         const getLocationPoints = async () => {
             try {
@@ -36,19 +35,12 @@ export default FollowRoute = () => {
     }, [walk.id]);
 
     useEffect(() => {
-        if (locationPoints.length > 0) {
-            const latitudes = locationPoints.map((point) => point.latitude);
-            const longitudes = locationPoints.map((point) => point.longitude);
-            const minLat = Math.min(...latitudes);
-            const maxLat = Math.max(...latitudes);
-            const minLong = Math.min(...longitudes);
-            const maxLong = Math.max(...longitudes);
-
+        if (walk) {
             setRegion({
-                latitude: (minLat + maxLat) / 2,
-                longitude: (minLong + maxLong) / 2,
-                latitudeDelta: (maxLat - minLat) * 1.2,
-                longitudeDelta: (maxLong - minLong) * 1.2,
+                latitude: walk.start_latitude,
+                longitude: walk.start_longitude,
+                latitudeDelta: 0.002,
+                longitudeDelta: 0.002,
             });
         }
     }, [locationPoints]);
