@@ -18,6 +18,7 @@ export default RecordScreen = () => {
   const [isTracking, setIsTracking] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [currentRegion, setCurrentRegion] = useState(null);
   const locationSubscription = useRef(null);
   const mapRef = useRef(null)
 
@@ -71,11 +72,13 @@ export default RecordScreen = () => {
             altitude: location.coords.altitude.toFixed(2),
           };
 
+          if(currentRegion){
           mapRef.current.animateToRegion({
             ...newLocation,
-            latitudeDelta: 0.01,
-            longitudeDelta: 0.01,
+            latitudeDelta: currentRegion.latitudeDelta,
+            longitudeDelta: currentRegion.longitudeDelta,
           });
+        }
 
           // Check for significant changes in location before updating
           setUserLocationHistory((prev) => {
@@ -136,6 +139,7 @@ export default RecordScreen = () => {
           {region && (
             <MapView
               ref={mapRef}
+              onRegionChangeComplete={(region)=> setCurrentRegion(region)}
               style={styles.map}
               initialRegion={region}
               provider={PROVIDER_DEFAULT}
