@@ -3,6 +3,8 @@ import { View, Text, StyleSheet, Platform } from "react-native";
 import MapView, { Polyline, UrlTile } from "react-native-maps";
 import { useRoute } from "@react-navigation/native";
 import { getWalkLocationPoints } from "../utils/api";
+import  DeleteButton  from "../components/DeleteButton";
+import {useAuth}  from '../contexts/AuthContext';
 
 export default function WalkDetails() {
   const route = useRoute();
@@ -10,6 +12,7 @@ export default function WalkDetails() {
   const [locationPoints, setLocationPoints] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [region, setRegion] = useState(null);
+  const { user } = useAuth();
 
   useEffect(() => {
     const getLocationPoints = async () => {
@@ -24,8 +27,9 @@ export default function WalkDetails() {
         setLocationPoints(convertedPointsData);
       } catch (error) {
         console.error("Error retrieving location points:", error);
-      }
+      } finally {
       setIsLoading(false);
+      }
     };
 
     getLocationPoints();
@@ -98,6 +102,8 @@ export default function WalkDetails() {
         <Text>Start Longitude: {walk.start_longitude}</Text>
         <Text>Start Altitude: {walk.start_altitude} m</Text>
       </View>
+      {/* <DeleteButton walkId ={walk.id}/> */}
+      {walk.creator_id === user.id && <DeleteButton walkId ={walk.id}/> }
     </View>
   );
 }

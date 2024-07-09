@@ -49,12 +49,15 @@ export default UploadModal = ({
 
         if (!validateTextInputContent(formData.walkTitle)) {
             errors.walkTitle = "Walk title must contain letters.";
+            setIsUploading(false)
         } else if (!validateTextInputLength(formData.walkTitle, 3, 30)) {
             errors.walkTitle = "Walk title must be between 3 and 30 characters.";
+            setIsUploading(false)
         }
 
         if (!validateTextInputLength(formData.walkDescription, 5, 255)) {
             errors.walkDescription = "Walk description must be between 5 and 255 characters.";
+            setIsUploading(false)
         }
 
         if (Object.keys(errors).length > 0) {
@@ -158,6 +161,7 @@ export default UploadModal = ({
     };
 
     const handleInputChange = (field, value) => {
+        setIsUploading(false)
         setFormData({
             ...formData,
             [field]: value,

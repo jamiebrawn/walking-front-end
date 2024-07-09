@@ -48,8 +48,9 @@ export const AuthProvider = ({ children }) => {
       }
     } catch (error) {
       throw error;
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   const signOut = async () => {

@@ -44,3 +44,13 @@ export const logIn = async (username, password) => {
     throw error;
   }
 };
+
+export const deleteWalk = async (walkId) => {
+  try {
+    const response = await walksApi.delete(`/walk/${walkId}`);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};

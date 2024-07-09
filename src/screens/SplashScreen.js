@@ -3,7 +3,7 @@ import {Text} from "react-native-paper"
 
 export default SplashScreen = () => (
   <View style={styles.container}>
-  <Text variant="titleLarge">Heyyyy</Text>
+  <Text variant="titleLarge">Welcome</Text>
     <ActivityIndicator size="large" />
     <Text>Loading...</Text>
   </View>
