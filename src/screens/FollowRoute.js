@@ -21,13 +21,14 @@ export default FollowRoute = () => {
             latitudeDelta: 0.002,
             longitudeDelta: 0.002,
         });
-    }, [walk.id]);
+    }, []);
 
     const tileUrl = "https://tile.openstreetmap.de/{z}/{x}/{y}.png";
 
     if (isLoading) {
         return (
             <View style={styles.container}>
+                <ActivityIndicator style={styles.centreSpinner} size="large" />
                 <Text>Loading...</Text>
             </View>
         );
@@ -35,44 +36,49 @@ export default FollowRoute = () => {
 
     return (
         <View style={styles.container}>
-            {region && (
-                <>
-                    <MapView
-                        style={styles.map}
-                        initialRegion={region}
-                        showsUserLocation={true}
-                        showsMyLocationButton={true}
-                        mapType={Platform.OS == "android" ? "none" : "standard"}
-                        onLayout={() => setMapReady(true)}
-                    >
-                        <UrlTile
-                            urlTemplate={tileUrl}
-                            maximumZ={19}
-                            flipY={false}
-                            tileSize={256}
+            {isLoading ? (
+                <View style={styles.container}>
+                    <ActivityIndicator
+                        style={styles.centreSpinner}
+                        size="large"
+                    />
+                </View>
+            ) : (
+                <MapView
+                    style={styles.map}
+                    initialRegion={region}
+                    showsUserLocation={true}
+                    showsMyLocationButton={true}
+                    mapType={Platform.OS == "android" ? "none" : "standard"}
+                    onLayout={() => setMapReady(true)}
+                >
+                    <UrlTile
+                        urlTemplate={tileUrl}
+                        maximumZ={19}
+                        flipY={false}
+                        tileSize={256}
+                    />
+                    {locationPoints.length > 0 && (
+                        <Polyline
+                            coordinates={locationPoints.map((point) => ({
+                                latitude: point.latitude,
+                                longitude: point.longitude,
+                            }))}
+                            strokeColor="#FF0000"
+                            strokeWidth={2}
                         />
-                        {locationPoints.length > 0 && (
-                            <Polyline
-                                coordinates={locationPoints.map((point) => ({
-                                    latitude: point.latitude,
-                                    longitude: point.longitude,
-                                }))}
-                                strokeColor="#FF0000"
-                                strokeWidth={2}
-                            />
-                        )}
-                        <Marker
-                            coordinate={{
-                                latitude: walk.start_latitude,
-                                longitude: walk.start_longitude,
-                            }}
-                            title="Start here"
-                        />
-                    </MapView>
-                    {!mapReady && (
-                        <ActivityIndicator style={styles.centre} size="large" />
                     )}
-                </>
+                    <Marker
+                        coordinate={{
+                            latitude: walk.start_latitude,
+                            longitude: walk.start_longitude,
+                        }}
+                        title="Start here"
+                    />
+                </MapView>
+            )}
+            {!mapReady && (
+                <ActivityIndicator style={styles.centreSpinner} size="large" />
             )}
         </View>
     );
@@ -81,21 +87,13 @@ export default FollowRoute = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "white",
     },
     map: {
         flex: 1,
     },
-    detailsContainer: {
-        flex: 1,
-        padding: 16,
-    },
-    title: {
-        fontSize: 24,
-        fontWeight: "bold",
-    },
-    centred: {
-        flexDirection: "row",
-        alignItems: "center",
+    centreSpinner: {
+        ...StyleSheet.absoluteFillObject,
+        justifyContent: "center",
+        alignSelf: "center",
     },
 });

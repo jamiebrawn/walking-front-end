@@ -19,22 +19,6 @@ export default function WalkDetails() {
     const { user } = useAuth();
 
     useEffect(() => {
-        // const getLocationPoints = async () => {
-        //     try {
-        //         const points = await getWalkLocationPoints(walk.id);
-        //         const convertedPointsData = points.map((point) => ({
-        //             ...point,
-        //             latitude: parseFloat(point.latitude),
-        //             longitude: parseFloat(point.longitude),
-        //             altitude: parseFloat(point.altitude),
-        //         }));
-        //         setLocationPoints(convertedPointsData);
-        //     } catch (error) {
-        //         console.error("Error retrieving location points:", error);
-        //     } finally {
-        //         setIsLoading(false);
-        //     }
-        // };
         getLocationPoints(walk.id, setLocationPoints, setIsLoading);
     }, [walk.id]);
 
