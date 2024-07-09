@@ -1,9 +1,9 @@
 import { View, StyleSheet } from "react-native";
-import { Text, Icon } from "react-native-paper";
+import { Text, Icon, Card } from "react-native-paper";
 
 const WalkCard = ({ walk }) => {
   return (
-    <View style={styles.card}>
+    <Card variant="elevated" style={styles.card}>
       <Text variant="headlineMedium" style={{textAlign: "center"}} >{walk.title}</Text>
       <Text variant="bodyLarge" style={{textAlign: "center"}} >{walk.description}</Text>
       <View style={styles.centredMetrics}>
@@ -15,7 +15,7 @@ const WalkCard = ({ walk }) => {
                     </View>
                     <View style={styles.centredRow}>
                         <Icon source="slope-uphill" size={24} />
-                        <Text variant="bodyMedium"> Ascent: {walk.ascent.toFixed(2)}m</Text>
+                        <Text variant="bodyMedium"> Ascent: {walk.ascent > 0 ? walk.ascent.toFixed(2) : walk.ascent}m</Text>
                     </View>
                 </View>
       {walk.rating && <Text>Rating: {walk.rating}</Text>}
@@ -25,17 +25,16 @@ const WalkCard = ({ walk }) => {
           <Text> Difficulty: {walk.difficulty}/10</Text>
         </View>
         )}
-    </View>
+    </Card>
   );
 };
 
 const styles = StyleSheet.create({
   card: {
     padding: 16,
-    marginVertical: 8,
+    margin: 8,
     backgroundColor: "white",
     borderRadius: 8,
-    elevation: 1,
   },
   centredRow: {
     flexDirection: "row",

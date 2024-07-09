@@ -35,16 +35,16 @@ export default Profile = ({setRefreshWalkList}) => {
 
   return (
     <View style={styles.mainView}>
-    {user && <Text>Username: {user.username}</Text>}
       <Text style={styles.centeredText} variant="displayMedium">
         Profile
       </Text>
+      {user && <Text>Username: {user.username}</Text>}
       <Text style={styles.centeredText} variant="headlineLarge">
         Your Walks
       </Text>
       {userWalks.length > 0 ? (
-        //  userWalks.map((walk) => (
         <FlatList
+        style={{width: "95%"}}
           data={userWalks}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
@@ -54,10 +54,9 @@ export default Profile = ({setRefreshWalkList}) => {
           )}
         />
       ) : (
-        //  ))
         <Text>You haven't uploaded any walks yet.</Text>
       )}
-      <Button mode="contained" onPress={signOut}>
+      <Button style={{marginVertical: 10}} mode="contained" onPress={signOut}>
         Sign Out
       </Button>
     </View>
