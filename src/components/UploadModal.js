@@ -16,6 +16,7 @@ export default UploadModal = ({
     setUserLocationHistory,
     setTotalDistance,
     setTotalAscent,
+    setRefreshWalkList,
 }) => {
     const [formData, setFormData] = useState({
         walkTitle: "",
@@ -122,10 +123,16 @@ export default UploadModal = ({
             setUserLocationHistory([]);
             setTotalDistance(0);
             setTotalAscent(0);
+            
         })
         .catch((error) => {
             console.log('Error uploading walk: ', error)
             setUploadError("Unable to upload walk, please try again");
+        })
+        .finally(() => {
+            if (uploadedWalk){
+                setRefreshWalkList((prev) => !prev);
+            }
         });
     };
 

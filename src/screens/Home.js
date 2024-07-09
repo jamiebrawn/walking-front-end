@@ -8,14 +8,17 @@ import {
   TouchableOpacity,
   Platform,
 } from "react-native";
-import MapView, { Marker, PROVIDER_DEFAULT, UrlTile } from "react-native-maps";
+import MapView, { Marker, UrlTile } from "react-native-maps";
 import { useNavigation } from "@react-navigation/native";
 import * as Location from "expo-location";
 import { getWalks } from "../utils/api";
 import WalkCard from "../components/WalkCard";
+import { ActivityIndicator } from "react-native-paper";
 
-export default Home = () => {
+export default Home = (refreshWalkList) => {
   const [walks, setWalks] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [mapReady, setMapReady] = useState(true);
   const [isMapView, setIsMapView] = useState(true);
   const [region, setRegion] = useState(null);
   const navigation = useNavigation();
@@ -35,10 +38,12 @@ export default Home = () => {
         setWalks(convertedWalksData);
       } catch (error) {
         console.error("Error retrieving walks:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
     fetchWalks();
-  }, []);
+  }, [refreshWalkList]);
 
   useEffect(() => {
     const setMap = async () => {
@@ -101,33 +106,34 @@ export default Home = () => {
         <Text>{isMapView ? "Map View" : "List View"}</Text>
         <Switch value={isMapView} onValueChange={toggleView} />
       </View>
+      {isLoading && <ActivityIndicator style={styles.centre} size="large" />}
       {isMapView ? (
         region && (
           <MapView
-            style={styles.map}
-            initialRegion={region}
-            // provider={PROVIDER_DEFAULT}
-            showsUserLocation={true}
-            showsMyLocationButton={true}
-            mapType={Platform.OS == "android" ? "none" : "standard"}
+          style={styles.map}
+          initialRegion={region}
+          showsUserLocation={true}
+          showsMyLocationButton={true}
+          mapType={Platform.OS == "android" ? "none" : "standard"}
+          onLayout={() => setMapReady(false)}
           >
             <UrlTile
               urlTemplate={tileUrl}
               maximumZ={19}
               flipY={false}
               tileSize={256}
-            />
+              />
             {walks &&
               walks.map((walk) => (
                 <Marker
-                  key={walk.id}
-                  coordinate={{
-                    latitude: walk.start_latitude,
-                    longitude: walk.start_longitude,
-                  }}
-                  title={walk.title}
-                  description={walk.description}
-                  onPress={() => handleMarkerPress(walk)}
+                key={walk.id}
+                coordinate={{
+                  latitude: walk.start_latitude,
+                  longitude: walk.start_longitude,
+                }}
+                title={walk.title}
+                description={walk.description}
+                onPress={() => handleMarkerPress(walk)}
                 />
               ))}
           </MapView>
@@ -158,4 +164,9 @@ const styles = StyleSheet.create({
   map: {
     flex: 1,
   },
+  centre: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: "center",
+    alignSelf: "center"
+  }
 });
