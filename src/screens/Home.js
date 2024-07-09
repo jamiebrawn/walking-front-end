@@ -8,13 +8,13 @@ import {
   TouchableOpacity,
   Platform,
 } from "react-native";
-import MapView, { Marker, PROVIDER_DEFAULT, UrlTile } from "react-native-maps";
+import MapView, { Marker, UrlTile } from "react-native-maps";
 import { useNavigation } from "@react-navigation/native";
 import * as Location from "expo-location";
 import { getWalks } from "../utils/api";
 import WalkCard from "../components/WalkCard";
 
-export default Home = () => {
+export default Home = (refreshWalkList) => {
   const [walks, setWalks] = useState([]);
   const [isMapView, setIsMapView] = useState(true);
   const [region, setRegion] = useState(null);
@@ -38,7 +38,7 @@ export default Home = () => {
       }
     };
     fetchWalks();
-  }, []);
+  }, [refreshWalkList]);
 
   useEffect(() => {
     const setMap = async () => {
@@ -106,7 +106,6 @@ export default Home = () => {
           <MapView
             style={styles.map}
             initialRegion={region}
-            // provider={PROVIDER_DEFAULT}
             showsUserLocation={true}
             showsMyLocationButton={true}
             mapType={Platform.OS == "android" ? "none" : "standard"}

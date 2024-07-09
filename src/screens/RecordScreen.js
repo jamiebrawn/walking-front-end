@@ -10,7 +10,7 @@ import { Portal, Modal, Text, Button, Icon } from "react-native-paper";
 import haversine from "haversine-distance";
 import UploadModal from "../components/UploadModal";
 
-export default RecordScreen = () => {
+export default RecordScreen = ({setRefreshWalkList}) => {
   const [region, setRegion] = useState(null);
   const [userLocationHistory, setUserLocationHistory] = useState([]);
   const [totalDistance, setTotalDistance] = useState(0);
@@ -133,6 +133,7 @@ export default RecordScreen = () => {
         setUserLocationHistory={setUserLocationHistory}
         setTotalDistance={setTotalDistance}
         setTotalAscent={setTotalAscent}
+        setRefreshWalkList={setRefreshWalkList}
       />
       <View style={styles.container}>
         <View style={styles.mapContainer}>
