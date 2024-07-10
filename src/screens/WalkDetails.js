@@ -5,6 +5,7 @@ import { useRoute, useNavigation } from "@react-navigation/native";
 import DeleteButton from "../components/DeleteButton";
 import { useAuth } from "../contexts/AuthContext";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { Foundation } from '@expo/vector-icons';
 import { Button, Text, Icon } from "react-native-paper";
 import { getLocationPoints, getAddressFromCoords } from "../utils/helpers";
 
@@ -101,8 +102,12 @@ export default function WalkDetails() {
                 </MapView>
             )}
             <View style={styles.detailsContainer}>
-                <Text variant="headlineLarge" style={{textAlign: "center"}} >{walk.title}</Text>
-                <Text variant="bodyLarge" style={styles.descriptionBody} >{walk.description}</Text>
+                <Text variant="headlineLarge" style={{ textAlign: "center" }}>
+                    {walk.title}
+                </Text>
+                <Text variant="bodyLarge" style={styles.descriptionBody}>
+                    {walk.description}
+                </Text>
                 <View style={styles.centredMetrics}>
                     <View style={styles.centredRow}>
                         <Icon source="walk" size={24} />
@@ -115,14 +120,23 @@ export default function WalkDetails() {
                         <Text variant="bodyMedium"> Ascent: {parseFloat(walk.ascent).toFixed(2)}m</Text>
                     </View>
                 </View>
+                <View style={styles.centredMetrics}>
+                    {walk.difficulty && (
+                        <View style={styles.centredRow}>
+                            <Icon source="speedometer-slow" size={24} />
+                            <Text> Difficulty: {walk.difficulty}/10</Text>
+                        </View>
+                    )}
+                    {walk.start_altitude !== 0 && (
+                        <View style={styles.centredRow}>
+                            <Foundation name="mountains" size={24} color="black" />
+                            <Text> Start Altitude: {walk.start_altitude}m</Text>
+                        </View>
+                    )}
+                </View>
                 {walk.rating && <Text>Rating: {walk.rating}</Text>}
-                {walk.difficulty && <Text>Difficulty: {walk.difficulty}</Text>}
-                {walk.start_altitude !== 0 && <Text>Start Altitude: {walk.start_altitude} m</Text>}
                 <View style={styles.centredRow}>
-                    <Ionicons
-                        name="location-sharp"
-                        size={24}
-                    />
+                    <Ionicons name="location-sharp" size={24} />
                     <Text>Start at: {startAddress}</Text>
                 </View>
                 <Button
@@ -174,16 +188,16 @@ const styles = StyleSheet.create({
     centredRow: {
         flexDirection: "row",
         alignItems: "center",
-        justifyContent: "center"
+        justifyContent: "center",
     },
     centredMetrics: {
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "space-around",
-        paddingVertical: 5
+        paddingVertical: 5,
     },
     descriptionBody: {
         paddingVertical: 5,
-        textAlign: "center"
-    }
+        textAlign: "center",
+    },
 });

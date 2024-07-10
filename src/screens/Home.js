@@ -8,12 +8,11 @@ import {
   TouchableOpacity,
   Platform,
   Dimensions,
-  Modal,
   Animated,
   Button
 } from "react-native";
-import { IconButton, ActivityIndicator } from "react-native-paper";
-import MapView, { Marker, UrlTile } from "react-native-maps";
+import { IconButton, ActivityIndicator, Button as PaperButton } from "react-native-paper";
+import MapView, { Marker, UrlTile, Callout } from "react-native-maps";
 import { useNavigation } from "@react-navigation/native";
 import * as Location from "expo-location";
 import Constants from 'expo-constants';
@@ -104,6 +103,7 @@ export default Home = (refreshWalkList, setRefreshWalkList) => {
 
   const handleMarkerPress = (walk) => {
     navigation.navigate("WalkDetails", { walk, setRefreshWalkList });
+    
   };
 
   const toggleSlider = () => {
@@ -165,13 +165,20 @@ export default Home = (refreshWalkList, setRefreshWalkList) => {
                   <Marker
                     key={walk.id}
                     coordinate={{
-                      latitude: walk.start_latitude,
-                      longitude: walk.start_longitude,
-                    }}
+                          latitude: walk.start_latitude,
+                          longitude: walk.start_longitude,
+                        }}
                     title={walk.title}
                     description={walk.description}
-                    onPress={() => handleMarkerPress(walk)}
-                  />
+                  >
+                    <Callout onPress={() => handleMarkerPress(walk)}>
+                      <View style={styles.calloutContainer}>
+                        <Text style={styles.calloutTitle}>{walk.title}</Text>
+                        <Text style={styles.calloutDescription}>{walk.description}</Text>              
+                          <PaperButton >Tap to view details</PaperButton>  
+                      </View>   
+                    </Callout>
+                  </Marker>
                 ))}
             </MapView>
           </>
@@ -242,6 +249,22 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  calloutContainer: {
+    width: 200,
+    padding: 10,
+    backgroundColor: 'white',
+  },
+  calloutTitle: {
+    fontSize: 16,
+    marginBottom: 5,
+    textAlign: "center"
+  },
+  calloutDescription: {
+    fontSize: 14,
+    marginBottom: 5,
+    color: '#888',
+    textAlign: "center"
   },
 });
 
