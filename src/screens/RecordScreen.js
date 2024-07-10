@@ -50,6 +50,7 @@ const RecordScreen = ({ setRefreshWalkList }) => {
 
   const startLocationTracking = async () => {
     try {
+      // Get initial location
       let location = await Location.getCurrentPositionAsync({});
       const initialLocation = {
         latitude: location.coords.latitude,
@@ -59,7 +60,6 @@ const RecordScreen = ({ setRefreshWalkList }) => {
       setUserLocationHistory([initialLocation]);
       console.log("Initial location:", initialLocation);
 
-      // Animate to the user's initial location with a specified zoom level
       mapRef.current.animateToRegion({
         latitude: location.coords.latitude,
         longitude: location.coords.longitude,
@@ -67,9 +67,10 @@ const RecordScreen = ({ setRefreshWalkList }) => {
         longitudeDelta: 0.01,
       });
 
+      // Watch for location updates
       locationSubscription.current = await Location.watchPositionAsync(
         {
-          accuracy: Location.Accuracy.Highest,
+          accuracy: Location.Accuracy.High,
           distanceInterval: 10,
           timeInterval: 10000,
         },
@@ -90,6 +91,7 @@ const RecordScreen = ({ setRefreshWalkList }) => {
             });
           }
 
+          // Check for significant changes in location before updating
           setUserLocationHistory((prev) => {
             const lastLocation = prev[prev.length - 1];
             const distanceMoved = haversine(lastLocation, newLocation);
@@ -99,6 +101,7 @@ const RecordScreen = ({ setRefreshWalkList }) => {
               ascent = newLocation.altitude - lastLocation.altitude;
             }
 
+            // Only update if the user has moved significantly
             if (distanceMoved > 0.0001) {
               const updatedHistory = [...prev, newLocation];
               console.log("Updated user location history:", updatedHistory);
