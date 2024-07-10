@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import MapView, {
   PROVIDER_DEFAULT,
   UrlTile,
@@ -11,7 +11,7 @@ import haversine from "haversine-distance";
 import UploadModal from "../components/UploadModal";
 import Constants from 'expo-constants';
 
-const RecordScreen = ({ setRefreshWalkList }) => {
+export default RecordScreen = ({setRefreshWalkList}) => {
   const [region, setRegion] = useState(null);
   const [userLocationHistory, setUserLocationHistory] = useState([]);
   const [totalDistance, setTotalDistance] = useState(0);
@@ -20,9 +20,8 @@ const RecordScreen = ({ setRefreshWalkList }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [currentRegion, setCurrentRegion] = useState(null);
-  const userHasInteractedRef = useRef(false); 
   const locationSubscription = useRef(null);
-  const mapRef = useRef(null);
+  const mapRef = useRef(null)
 
   useEffect(() => {
     setIsLoading(true);
@@ -60,13 +59,6 @@ const RecordScreen = ({ setRefreshWalkList }) => {
       setUserLocationHistory([initialLocation]);
       console.log("Initial location:", initialLocation);
 
-      mapRef.current.animateToRegion({
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-        latitudeDelta: 0.01,
-        longitudeDelta: 0.01,
-      });
-
       // Watch for location updates
       locationSubscription.current = await Location.watchPositionAsync(
         {
@@ -75,21 +67,19 @@ const RecordScreen = ({ setRefreshWalkList }) => {
           timeInterval: 10000,
         },
         (location) => {
-          console.log("new location, has user interacted status:", userHasInteractedRef.current);
           const newLocation = {
             latitude: location.coords.latitude,
             longitude: location.coords.longitude,
             altitude: location.coords.altitude.toFixed(2),
           };
 
-          if (!userHasInteractedRef.current) {
-            console.log("animate to region, has user interacted status:", userHasInteractedRef.current);
-            mapRef.current.animateToRegion({
-              ...newLocation,
-              latitudeDelta: currentRegion ? currentRegion.latitudeDelta : 0.01,
-              longitudeDelta: currentRegion ? currentRegion.longitudeDelta : 0.01,
-            });
-          }
+          if(currentRegion){
+          mapRef.current.animateToRegion({
+            ...newLocation,
+            latitudeDelta: currentRegion.latitudeDelta,
+            longitudeDelta: currentRegion.longitudeDelta,
+          });
+        }
 
           // Check for significant changes in location before updating
           setUserLocationHistory((prev) => {
@@ -124,32 +114,11 @@ const RecordScreen = ({ setRefreshWalkList }) => {
   const handleStart = () => {
     startLocationTracking();
     setIsTracking(true);
-    userHasInteractedRef.current = false; 
   };
 
   const handleStop = () => {
     setIsModalVisible(true);
     setIsTracking(false);
-  };
-
-  const handleUserInteraction = (gesture) => {
-    if (gesture && gesture.isGesture) {
-      userHasInteractedRef.current = true; 
-      console.log("handleUserInteraction thrown. has user interacted status:", userHasInteractedRef.current);
-    }
-  };
-
-  const handleCurrentPositionButtonPress = async () => {
-    console.log("handleCurrentPositionButtonPress thrown");
-    const location = await Location.getCurrentPositionAsync({});
-    const userRegion = {
-      latitude: location.coords.latitude,
-      longitude: location.coords.longitude,
-      latitudeDelta: currentRegion ? currentRegion.latitudeDelta : 0.01,
-      longitudeDelta: currentRegion ? currentRegion.longitudeDelta : 0.01,
-    };
-    mapRef.current.animateToRegion(userRegion);
-    userHasInteractedRef.current = false; 
   };
 
   const tileUrl = "https://tile.openstreetmap.de/{z}/{x}/{y}.png";
@@ -172,15 +141,12 @@ const RecordScreen = ({ setRefreshWalkList }) => {
           {region && (
             <MapView
               ref={mapRef}
-              onRegionChangeComplete={(region, gesture) => {
-                setCurrentRegion(region);
-                handleUserInteraction(gesture);
-              }}
+              onRegionChangeComplete={(region)=> setCurrentRegion(region)}
               style={styles.map}
               initialRegion={region}
               provider={PROVIDER_DEFAULT}
               showsUserLocation={true}
-              showsMyLocationButton={false}
+              showsMyLocationButton={true}
               mapType={Platform.OS == "android" ? "none" : "standard"}
             >
               <UrlTile
@@ -199,14 +165,6 @@ const RecordScreen = ({ setRefreshWalkList }) => {
               />
             </MapView>
           )}
-          <Button
-            icon="crosshairs-gps"
-            mode={!userHasInteractedRef.current ? "contained" : "contained-tonal"}
-            style={styles.currentPositionButton}
-            onPress={handleCurrentPositionButtonPress}
-          >
-            Current Position
-          </Button>
         </View>
         <View style={styles.info}>
           <View style={styles.metric}>
@@ -219,7 +177,7 @@ const RecordScreen = ({ setRefreshWalkList }) => {
           </View>
         </View>
         <Button
-          mode={"contained"}
+          mode="contained"
           onPress={!isTracking ? handleStart : handleStop}
         >
           {!isTracking ? "Start Tracking" : "Stop Tracking"}
@@ -242,12 +200,6 @@ const styles = StyleSheet.create({
   map: {
     ...StyleSheet.absoluteFillObject,
   },
-  currentPositionButton: {
-    position: "absolute",
-    bottom: 20,
-    right: 20,
-    zIndex: 10,
-  },
   info: {
     backgroundColor: "white",
     flex: 1,
@@ -259,5 +211,3 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 });
-
-export default RecordScreen;
