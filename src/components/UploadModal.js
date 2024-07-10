@@ -236,7 +236,7 @@ export default UploadModal = ({
                         <TextInput
                             label="Walk description"
                             multiline={true}
-                            value={formData.walkDescription}
+                            defaultValue={formData.walkDescription}
                             onChangeText={(text) => handleInputChange("walkDescription", text)}
                             style={styles.formInput}
                             accessibilityLabel="Walk description"
