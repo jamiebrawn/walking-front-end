@@ -4,14 +4,13 @@ import {
   Text,
   StyleSheet,
   FlatList,
-  Switch,
   TouchableOpacity,
   Platform,
   Dimensions,
   Animated,
   Button
 } from "react-native";
-import { IconButton, ActivityIndicator, Button as PaperButton } from "react-native-paper";
+import { IconButton, ActivityIndicator, Button as PaperButton, Switch } from "react-native-paper";
 import MapView, { Marker, UrlTile, Callout } from "react-native-maps";
 import { useNavigation } from "@react-navigation/native";
 import * as Location from "expo-location";
