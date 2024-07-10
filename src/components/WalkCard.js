@@ -15,7 +15,7 @@ const WalkCard = ({ walk }) => {
                     </View>
                     <View style={styles.centredRow}>
                         <Icon source="slope-uphill" size={24} />
-                        <Text variant="bodyMedium"> Ascent: {walk.ascent > 0 ? walk.ascent.toFixed(2) : walk.ascent}m</Text>
+                        <Text variant="bodyMedium"> Ascent: {typeof walk.ascent === 'number' ? walk.ascent > 0 ? walk.ascent.toFixed(2) : walk.ascent : 0}m</Text>
                     </View>
                 </View>
       {walk.rating && <Text>Rating: {walk.rating}</Text>}
