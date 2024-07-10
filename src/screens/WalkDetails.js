@@ -146,7 +146,6 @@ export default function WalkDetails() {
                     )}
                 </View>
                 {walk.rating && <Text>Rating: {walk.rating}</Text>}
-                {walk.difficulty && <Text>Difficulty: {walk.difficulty}</Text>}
                 <View style={styles.centredRow}>
                     <Ionicons name="location-sharp" size={24} />
                     <Text>Start at: {startAddress}</Text>
