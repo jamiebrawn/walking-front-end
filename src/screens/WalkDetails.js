@@ -210,6 +210,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "space-around",
         paddingVertical: 5,
+        marginBottom: 5
     },
     descriptionBody: {
         paddingVertical: 5,
