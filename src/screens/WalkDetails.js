@@ -9,7 +9,6 @@ import { FontAwesome5 } from '@expo/vector-icons';
 import { Foundation } from '@expo/vector-icons';
 import { Button, Text, Icon } from "react-native-paper";
 import { getLocationPoints, getAddressFromCoords } from "../utils/helpers";
-import Disclaimer from "../components/Disclaimer";
 
 export default function WalkDetails() {
     const route = useRoute();
@@ -148,7 +147,6 @@ export default function WalkDetails() {
                 </View>
                 {walk.rating && <Text>Rating: {walk.rating}</Text>}
                 {walk.difficulty && <Text>Difficulty: {walk.difficulty}</Text>}
-                {walk.start_altitude !== 0 && <Text>Start Altitude: {walk.start_altitude} m</Text>}
                 <View style={styles.centredRow}>
                     <Ionicons name="location-sharp" size={24} />
                     <Text>Start at: {startAddress}</Text>
