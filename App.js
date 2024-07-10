@@ -7,6 +7,7 @@ import SignIn from "./src/screens/SignIn";
 import FollowRoute from "./src/screens/FollowRoute";
 import { AuthProvider, useAuth } from "./src/contexts/AuthContext";
 import SplashScreen from "./src/screens/SplashScreen";
+import Disclaimer from "./src/components/Disclaimer";
 
 const Stack = createStackNavigator();
 
@@ -56,6 +57,11 @@ const MainNavigator = () => {
             name="FollowRoute"
             component={FollowRoute}
             options={{ title: "Follow Route" }}
+          />
+          <Stack.Screen
+            name="Disclaimer"
+            component={Disclaimer}
+            options={{ title: "Disclaimer" }}
           />
         </>
       )}

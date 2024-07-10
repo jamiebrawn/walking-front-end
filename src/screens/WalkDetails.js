@@ -5,9 +5,11 @@ import { useRoute, useNavigation } from "@react-navigation/native";
 import DeleteButton from "../components/DeleteButton";
 import { useAuth } from "../contexts/AuthContext";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { FontAwesome5 } from '@expo/vector-icons';
 import { Foundation } from '@expo/vector-icons';
 import { Button, Text, Icon } from "react-native-paper";
 import { getLocationPoints, getAddressFromCoords } from "../utils/helpers";
+import Disclaimer from "../components/Disclaimer";
 
 export default function WalkDetails() {
     const route = useRoute();
@@ -61,6 +63,10 @@ export default function WalkDetails() {
 
     const handleFollowPress = () => {
         navigation.navigate("FollowRoute", { walk });
+    };
+
+    const handleDisclaimerPress = () => {
+        navigation.navigate("Disclaimer");
     };
 
     const tileUrl = "https://tile.openstreetmap.de/{z}/{x}/{y}.png";
@@ -161,6 +167,10 @@ export default function WalkDetails() {
                         <Text style={{ color: "white" }}> Follow Route</Text>
                     </View>
                 </Button>
+            <View style={styles.disclaimer}>
+                <FontAwesome5 name="exclamation-triangle" size={24} color="orange" />
+                <Button onPress={handleDisclaimerPress} >Tap to read our important safety notes</Button>
+            </View>
             </View>
             {walk.creator_id === user.id && (
                 <DeleteButton
@@ -207,5 +217,11 @@ const styles = StyleSheet.create({
     descriptionBody: {
         paddingVertical: 5,
         textAlign: "center",
+    },
+    disclaimer: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        marginTop: 30
     },
 });
