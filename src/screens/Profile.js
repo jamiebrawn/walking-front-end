@@ -20,7 +20,6 @@ export default Profile = ({setRefreshWalkList}) => {
       setIsLoading(false);
     } catch (error) {
       console.log("Error retrieving walks:", error);
-      //TO DO: add error handling
     }
   };
 
@@ -38,7 +37,7 @@ export default Profile = ({setRefreshWalkList}) => {
       <Text style={styles.centeredText} variant="displayMedium">
         Profile
       </Text>
-      {user && <Text>Username: {user.username}</Text>}
+      {user && <Text>Logged in as: {user.username}</Text>}
       <Text style={styles.centeredText} variant="headlineLarge">
         Your Walks
       </Text>
