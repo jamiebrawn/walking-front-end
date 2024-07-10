@@ -138,7 +138,7 @@ export default function WalkDetails() {
                             <Text> Difficulty: {walk.difficulty}/10</Text>
                         </View>
                     )}
-                    {walk.start_altitude !== 0 && (
+                    {walk.start_altitude > 0 && (
                         <View style={styles.centredRow}>
                             <Foundation name="mountains" size={24} color="black" />
                             <Text> Start Altitude: {walk.start_altitude}m</Text>
