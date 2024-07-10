@@ -7,7 +7,7 @@ import { useAuth } from "../contexts/AuthContext";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { FontAwesome5 } from '@expo/vector-icons';
 import { Foundation } from '@expo/vector-icons';
-import { Button, Text, Icon } from "react-native-paper";
+import { Button, Text, Icon, ActivityIndicator } from "react-native-paper";
 import { getLocationPoints, getAddressFromCoords } from "../utils/helpers";
 
 export default function WalkDetails() {
@@ -73,7 +73,7 @@ export default function WalkDetails() {
     if (isLoading) {
         return (
             <View style={styles.container}>
-                <Text>Loading...</Text>
+                <ActivityIndicator style={styles.centreSpinner} size="large" />
             </View>
         );
     }
@@ -100,8 +100,8 @@ export default function WalkDetails() {
                                 latitude: point.latitude,
                                 longitude: point.longitude,
                             }))}
-                            strokeColor="#FF0000"
-                            strokeWidth={2}
+                            strokeColor="#6750A4"
+                            strokeWidth={3}
                         />
                     )}
                 </MapView>
@@ -138,7 +138,7 @@ export default function WalkDetails() {
                             <Text> Difficulty: {walk.difficulty}/10</Text>
                         </View>
                     )}
-                    {walk.start_altitude !== 0 && (
+                    {walk.start_altitude > 0 && (
                         <View style={styles.centredRow}>
                             <Foundation name="mountains" size={24} color="black" />
                             <Text> Start Altitude: {walk.start_altitude}m</Text>
