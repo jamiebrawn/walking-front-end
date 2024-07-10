@@ -13,10 +13,12 @@ export default DeleteButton = ({ walkId, setRefreshWalkList }) => {
   const handleDelete = async () => {
     try {
       setIsDeleting(true);
+      setDeleteError(false); 
       await deleteWalk(walkId);
       navigation.goBack();
     } catch (error) {
       console.error("Error deleting walk:", error);
+      setDeleteError(true); 
       throw error;
     } finally {
       setIsDeleting(false);
@@ -29,13 +31,18 @@ export default DeleteButton = ({ walkId, setRefreshWalkList }) => {
     handleDelete();
   };
 
+  const closeModal = () => {
+    setIsModalVisible(false);
+    setDeleteError(false);
+  };
+
   return (
     <View>
       <IconButton icon="delete" onPress={() => setIsModalVisible(true)} />
       <Portal>
         <Modal
           visible={isModalVisible}
-          onDismiss={() => setIsModalVisible(false)}
+          onDismiss={closeModal}
           contentContainerStyle={styles.modalContainer}
         >
           <Text style={styles.modalText}>

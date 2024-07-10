@@ -76,7 +76,7 @@ export default UploadModal = ({
 
         const walkObject = {
             walk: {
-                creator_id: user.id, //Hardcoded for now but ultimately will need to use logged in users id
+                creator_id: user.id,
                 title: formData.walkTitle,
                 description: formData.walkDescription,
                 distance_km: totalDistance,
@@ -87,33 +87,6 @@ export default UploadModal = ({
                 start_altitude: userLocationHistory[0].altitude,
             },
             locations: userLocationHistory,
-            // ^^Above is the correct code - below is hardcoded walk object for testing to avoid leaking our personal location data.
-        //     walk: {
-        //         creator_id: 1, 
-        //         title: formData.walkTitle,
-        //         description: formData.walkDescription,
-        //     distance_km: 18,
-        //         ascent: 900,
-        //         difficulty: difficultyAsNum,
-        //         start_latitude: 53.52989,
-        //         start_longitude: -2.02364,
-        //         start_altitude: 242,
-        //     },
-        //     locations: [
-        //         {"latitude": 53.52989, "longitude": -2.02364, "altitude": 123 },
-        //         {"latitude": 53.52986, "longitude": -2.02364, "altitude": 123 },
-        //         {"latitude": 53.52962, "longitude": -2.02399, "altitude": 123 },
-        //         {"latitude": 53.52949, "longitude": -2.02431, "altitude": 123 },
-        //         {"latitude": 53.52931, "longitude": -2.02443, "altitude": 123 },
-        //         {"latitude": 53.52926, "longitude": -2.02453, "altitude": 123 },
-        //         {"latitude": 53.52923, "longitude": -2.02462, "altitude": 123 },
-        //         {"latitude": 53.5285, "longitude": -2.02483, "altitude": 123 },
-        //         {"latitude": 53.52849, "longitude": -2.02479, "altitude": 123 },
-        //         {"latitude": 53.52838, "longitude": -2.02433, "altitude": 123 },
-        //         {"latitude": 53.5284, "longitude": -2.02422, "altitude": 123 },
-        //         {"latitude": 53.52848, "longitude": -2.02398, "altitude": 123 },
-        //         {"latitude": 53.5284, "longitude": -2.02334, "altitude": 123 }
-        //     ],
         };
         addWalk(walkObject).then((addedWalk) => {
             const { walk } = addedWalk;

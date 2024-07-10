@@ -3,10 +3,11 @@ import { useState } from "react";
 import { View, TextInput, TouchableOpacity, StyleSheet } from "react-native";
 import {
   Text,
-  Button,
+  Button,  
 } from "react-native-paper";
 import { useAuth } from "../contexts/AuthContext";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';  
+import { Ionicons } from "@expo/vector-icons";
 
 export default SignIn = () => {
   const [username, setUsername] = useState("");
@@ -39,7 +40,21 @@ export default SignIn = () => {
   return (
     <View style={styles.container}>
       <Text variant="titleLarge" style={styles.title}>
-        Sign In
+        Welcome to
+      </Text>
+      <View style={styles.appName}>
+        <Ionicons
+        name="footsteps-outline"
+        size={36}
+        color="#6750A4"
+        style={styles.icon}
+        />
+        <Text variant="displaySmall" style={styles.appNameText}>
+          Walk the Line
+        </Text>
+      </View>
+      <Text variant="titleMedium" style={styles.title}>
+        Sign in to continue
       </Text>
       <TextInput
         placeholder="Username"
@@ -90,6 +105,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 12,
     padding: 8,
+    borderRadius: 8,
+    backgroundColor: "#F3EDF7"
   },
   passwordContainer: {
     flexDirection: "row",
@@ -99,6 +116,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 12,
     padding: 8,
+    borderRadius: 8,
+    backgroundColor: "#F3EDF7"
   },
   passwordInput: {
     flex: 1,
@@ -112,5 +131,19 @@ const styles = StyleSheet.create({
   errorMessage: {
     color: "red",
     textAlign: "center",
+  },
+  appName: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 20
+  },
+  appNameText: {
+    color: "#6750A4",
+    marginRight: 18,
+
+  },
+  icon: {
+    marginRight: 8,
   },
 });

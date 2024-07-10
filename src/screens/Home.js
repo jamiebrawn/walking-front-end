@@ -4,7 +4,6 @@ import {
   Text,
   StyleSheet,
   FlatList,
-  Switch,
   TouchableOpacity,
   Platform,
   Dimensions,
@@ -12,7 +11,7 @@ import {
   TextInput,
   Button
 } from "react-native";
-import { IconButton, ActivityIndicator, Button as PaperButton } from "react-native-paper";
+import { IconButton, ActivityIndicator, Button as PaperButton, SegmentedButtons } from "react-native-paper";
 import MapView, { Marker, UrlTile, Callout } from "react-native-maps";
 import { useNavigation } from "@react-navigation/native";
 import * as Location from "expo-location";
@@ -137,10 +136,15 @@ export default Home = (refreshWalkList, setRefreshWalkList) => {
     <View style={styles.container}>
       <View style={styles.header}>
         <IconButton icon="tune-variant" onPress={toggleSlider} />
-        <View style={styles.toggleContainer}>
-          <Text>{isMapView ? "Map View" : "List View"}</Text>
-          <Switch value={isMapView} onValueChange={toggleView} />
-        </View>
+          <SegmentedButtons
+            style={styles.segmentedButtons}
+            value={isMapView ? 'map' : 'list'}
+            onValueChange={value => setIsMapView(value === 'map')}
+            buttons={[
+              { value: 'map', label: 'Map View' },
+              { value: 'list', label: 'List View' }
+            ]}
+          />
       </View>
       <View style={styles.contentContainer}>
         <Animated.View style={[styles.sliderView, { transform: [{ translateY: slideAnim }] }]}>
@@ -236,16 +240,10 @@ const styles = StyleSheet.create({
     zIndex: 2,
     flex: 1,
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
     paddingHorizontal: 10,
-    paddingBottom: 10,
+    paddingVertical: 10,
     marginTop: Constants.statusBarHeight,
-  },
-  toggleContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
   },
   contentContainer: {
     zIndex: 1,
@@ -293,6 +291,13 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     color: '#888',
     textAlign: "center"
+  },
+  segmentedButtons: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center', 
+    height: 40, 
+    margin: 15,
   },
   input: {
     height: 40,
