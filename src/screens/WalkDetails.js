@@ -47,8 +47,8 @@ export default function WalkDetails() {
         const fetchStartAddress = async () => {
             try {
                 const address = await getAddressFromCoords(
-                    walk.start_latitude,
-                    walk.start_longitude
+                    parseFloat(walk.start_latitude),
+                    parseFloat(walk.start_longitude)
                 );
                 setStartAddress(address);
             } catch (error) {
