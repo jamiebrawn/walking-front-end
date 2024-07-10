@@ -38,22 +38,29 @@ export default Profile = ({setRefreshWalkList}) => {
         Profile
       </Text>
       {user && <Text>Logged in as: {user.username}</Text>}
-      <Text style={styles.centeredText} variant="headlineLarge">
-        Your Walks
-      </Text>
       {userWalks.length > 0 ? (
-        <FlatList
-        style={{width: "95%"}}
-          data={userWalks}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => (
-            <TouchableOpacity onPress={() => handleCardPress(item)}>
-              <WalkCard walk={item} />
-            </TouchableOpacity>
-          )}
-        />
+        <>
+          <Text style={styles.centeredText} variant="headlineLarge">
+            Your Walks
+          </Text>
+          <FlatList
+          style={{width: "95%"}}
+            data={userWalks}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={({ item }) => (
+              <TouchableOpacity onPress={() => handleCardPress(item)}>
+                <WalkCard walk={item} />
+              </TouchableOpacity>
+            )}
+          />
+        </>
       ) : (
-        <Text>You haven't uploaded any walks yet.</Text>
+          <View style={styles.noWalksContainer}>
+            <Text style={styles.centeredText} variant="headlineLarge">
+            Your Walks
+          </Text>
+            <Text>You haven't uploaded any walks yet.</Text>
+          </View>
       )}
       <Button style={{marginVertical: 10}} mode="contained" onPress={signOut}>
         Sign Out
@@ -72,5 +79,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingTop: 30,
+  },
+  noWalksContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
