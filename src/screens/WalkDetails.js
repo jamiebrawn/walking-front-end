@@ -100,8 +100,8 @@ export default function WalkDetails() {
                                 latitude: point.latitude,
                                 longitude: point.longitude,
                             }))}
-                            strokeColor="#FF0000"
-                            strokeWidth={2}
+                            strokeColor="#6750A4"
+                            strokeWidth={3}
                         />
                     )}
                 </MapView>
