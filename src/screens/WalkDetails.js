@@ -112,7 +112,7 @@ export default function WalkDetails() {
                     </View>
                     <View style={styles.centredRow}>
                         <Icon source="slope-uphill" size={24} />
-                        <Text variant="bodyMedium"> Ascent: {walk.ascent.toFixed(2)}m</Text>
+                        <Text variant="bodyMedium"> Ascent: {parseFloat(walk.ascent).toFixed(2)}m</Text>
                     </View>
                 </View>
                 {walk.rating && <Text>Rating: {walk.rating}</Text>}
