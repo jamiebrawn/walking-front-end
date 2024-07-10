@@ -173,10 +173,10 @@ export default RecordScreen = ({setRefreshWalkList}) => {
           </View>
           <View style={styles.metric}>
             <Icon source="slope-uphill" size={30} />
-            <Text variant="displaySmall">{totalAscent.toFixed(2)}m</Text>
+            <Text variant="displaySmall"> {totalAscent.toFixed(2)}m</Text>
           </View>
         </View>
-        <Button
+        <Button style={{margin: 10}}
           mode="contained"
           onPress={!isTracking ? handleStart : handleStop}
         >
@@ -201,13 +201,15 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
   },
   info: {
-    backgroundColor: "white",
     flex: 1,
     flexDirection: "row",
     justifyContent: "space-evenly",
+    marginTop: 10
   },
   metric: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
+    height: 40, 
   },
 });
