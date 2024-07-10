@@ -9,6 +9,7 @@ import {
   Platform,
   Dimensions,
   Animated,
+  TextInput,
   Button
 } from "react-native";
 import { IconButton, ActivityIndicator, Button as PaperButton } from "react-native-paper";
@@ -26,31 +27,35 @@ export default Home = (refreshWalkList, setRefreshWalkList) => {
   const [isMapView, setIsMapView] = useState(true);
   const [region, setRegion] = useState(null);
   const [isSliderVisible, setIsSliderVisible] = useState(false);
+  const [minDistance, setMinDistance] = useState('');
+  const [maxDistance, setMaxDistance] = useState('');
+  const [difficulty, setDifficulty] = useState('');
   const navigation = useNavigation();
   const windowHeight = Dimensions.get("window").height;
   const [slideAnim] = useState(new Animated.Value(-windowHeight * 0.5));
 
   useEffect(() => {
-    const fetchWalks = async () => {
-      try {
-        const walksData = await getWalks();
-        const convertedWalksData = walksData.map((walk) => ({
-          ...walk,
-          distance_km: parseFloat(walk.distance_km),
-          ascent: parseFloat(walk.ascent),
-          start_latitude: parseFloat(walk.start_latitude),
-          start_longitude: parseFloat(walk.start_longitude),
-          start_altitude: parseFloat(walk.start_altitude),
-        }));
-        setWalks(convertedWalksData);
-      } catch (error) {
-        console.error("Error retrieving walks:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
     fetchWalks();
   }, [refreshWalkList]);
+
+  const fetchWalks = async () => {
+    try {
+      const walksData = await getWalks(minDistance, maxDistance, difficulty);
+      const convertedWalksData = walksData.map((walk) => ({
+        ...walk,
+        distance_km: parseFloat(walk.distance_km),
+        ascent: parseFloat(walk.ascent),
+        start_latitude: parseFloat(walk.start_latitude),
+        start_longitude: parseFloat(walk.start_longitude),
+        start_altitude: parseFloat(walk.start_altitude),
+      }));
+      setWalks(convertedWalksData);
+    } catch (error) {
+      console.error("Error retrieving walks:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
     const setMap = async () => {
@@ -103,7 +108,6 @@ export default Home = (refreshWalkList, setRefreshWalkList) => {
 
   const handleMarkerPress = (walk) => {
     navigation.navigate("WalkDetails", { walk, setRefreshWalkList });
-    
   };
 
   const toggleSlider = () => {
@@ -123,6 +127,10 @@ export default Home = (refreshWalkList, setRefreshWalkList) => {
     }
   };
 
+  const applyFilters = () => {
+    fetchWalks();
+  };
+
   const tileUrl = "https://tile.openstreetmap.de/{z}/{x}/{y}.png";
 
   return (
@@ -135,65 +143,86 @@ export default Home = (refreshWalkList, setRefreshWalkList) => {
         </View>
       </View>
       <View style={styles.contentContainer}>
-      <Animated.View style={[styles.sliderView, { transform: [{ translateY: slideAnim }] }]}>
-        <View style={styles.sliderContent}>
-          {/* filters */}
-          <Button title="Slide Content Button" onPress={() => {}} />
-        </View>
-      </Animated.View>
+        <Animated.View style={[styles.sliderView, { transform: [{ translateY: slideAnim }] }]}>
+          <View style={styles.sliderContent}>
+            {/* Filters */}
+            <Text>Min Distance (km)</Text>
+            <TextInput
+              style={styles.input}
+              value={minDistance}
+              onChangeText={setMinDistance}
+              keyboardType="numeric"
+            />
+            <Text>Max Distance (km)</Text>
+            <TextInput
+              style={styles.input}
+              value={maxDistance}
+              onChangeText={setMaxDistance}
+              keyboardType="numeric"
+            />
+            <Text>Difficulty</Text>
+            <TextInput
+              style={styles.input}
+              value={difficulty}
+              onChangeText={setDifficulty}
+              keyboardType="numeric"
+            />
+            <Button title="Apply Filters" onPress={applyFilters} />
+          </View>
+        </Animated.View>
 
-      {isLoading && !mapReady && <ActivityIndicator style={styles.centre} size="large" />}
-      {isMapView ? (
-        region && (
-          <>
-            <MapView
-              style={styles.map}
-              initialRegion={region}
-              showsUserLocation={true}
-              showsMyLocationButton={true}
-              mapType={Platform.OS == "android" ? "none" : "standard"}
-              onLayout={() => setMapReady(true)}
-            >
-              <UrlTile
-                urlTemplate={tileUrl}
-                maximumZ={19}
-                flipY={false}
-                tileSize={256}
-              />
-              {walks &&
-                walks.map((walk) => (
-                  <Marker
-                    key={walk.id}
-                    coordinate={{
-                          latitude: walk.start_latitude,
-                          longitude: walk.start_longitude,
-                        }}
-                    title={walk.title}
-                    description={walk.description}
-                  >
-                    <Callout onPress={() => handleMarkerPress(walk)}>
-                      <View style={styles.calloutContainer}>
-                        <Text style={styles.calloutTitle}>{walk.title}</Text>
-                        <Text style={styles.calloutDescription}>{walk.description}</Text>              
-                          <PaperButton >Tap to view details</PaperButton>  
-                      </View>   
-                    </Callout>
-                  </Marker>
-                ))}
-            </MapView>
-          </>
-        )
-      ) : (
-        <FlatList
-          data={walks}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => (
-            <TouchableOpacity onPress={() => handleCardPress(item)}>
-              <WalkCard walk={item} />
-            </TouchableOpacity>
-          )}
-        />
-      )}
+        {isLoading && !mapReady && <ActivityIndicator style={styles.centre} size="large" />}
+        {isMapView ? (
+          region && (
+            <>
+              <MapView
+                style={styles.map}
+                initialRegion={region}
+                showsUserLocation={true}
+                showsMyLocationButton={true}
+                mapType={Platform.OS == "android" ? "none" : "standard"}
+                onLayout={() => setMapReady(true)}
+              >
+                <UrlTile
+                  urlTemplate={tileUrl}
+                  maximumZ={19}
+                  flipY={false}
+                  tileSize={256}
+                />
+                {walks &&
+                  walks.map((walk) => (
+                    <Marker
+                      key={walk.id}
+                      coordinate={{
+                        latitude: walk.start_latitude,
+                        longitude: walk.start_longitude,
+                      }}
+                      title={walk.title}
+                      description={walk.description}
+                    >
+                      <Callout onPress={() => handleMarkerPress(walk)}>
+                        <View style={styles.calloutContainer}>
+                          <Text style={styles.calloutTitle}>{walk.title}</Text>
+                          <Text style={styles.calloutDescription}>{walk.description}</Text>
+                          <PaperButton>Tap to view details</PaperButton>
+                        </View>
+                      </Callout>
+                    </Marker>
+                  ))}
+              </MapView>
+            </>
+          )
+        ) : (
+          <FlatList
+            data={walks}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={({ item }) => (
+              <TouchableOpacity onPress={() => handleCardPress(item)}>
+                <WalkCard walk={item} />
+              </TouchableOpacity>
+            )}
+          />
+        )}
       </View>
     </View>
   );
@@ -201,7 +230,6 @@ export default Home = (refreshWalkList, setRefreshWalkList) => {
 
 const styles = StyleSheet.create({
   container: {
-    
     flex: 1,
   },
   header: {
@@ -220,7 +248,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   contentContainer: {
-    zIndex:1,
+    zIndex: 1,
     flex: 20,
   },
   map: {
@@ -266,5 +294,12 @@ const styles = StyleSheet.create({
     color: '#888',
     textAlign: "center"
   },
+  input: {
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+    marginBottom: 10,
+    paddingHorizontal: 8,
+    width: '80%'
+  },
 });
-

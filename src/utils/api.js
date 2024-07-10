@@ -13,8 +13,14 @@ export const addWalk = async (walkObject) => {
   }
 };
 
-export const getWalks = async () => {
-  const response = await walksApi.get(`/walks`);
+export const getWalks = async (minDistance, maxDistance, difficulty) => {
+  const params = {};
+
+  if (minDistance) params.minDistance = minDistance;
+  if (maxDistance) params.maxDistance = maxDistance;
+  if (difficulty) params.difficulty = difficulty;
+
+  const response = await walksApi.get('/walks', { params });
   return response.data.walks;
 };
 
