@@ -29,7 +29,6 @@ export default FollowRoute = () => {
         return (
             <View style={styles.container}>
                 <ActivityIndicator style={styles.centreSpinner} size="large" />
-                <Text>Loading...</Text>
             </View>
         );
     }

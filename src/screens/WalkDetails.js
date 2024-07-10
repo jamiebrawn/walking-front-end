@@ -7,7 +7,7 @@ import { useAuth } from "../contexts/AuthContext";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { FontAwesome5 } from '@expo/vector-icons';
 import { Foundation } from '@expo/vector-icons';
-import { Button, Text, Icon } from "react-native-paper";
+import { Button, Text, Icon, ActivityIndicator } from "react-native-paper";
 import { getLocationPoints, getAddressFromCoords } from "../utils/helpers";
 
 export default function WalkDetails() {
@@ -73,7 +73,7 @@ export default function WalkDetails() {
     if (isLoading) {
         return (
             <View style={styles.container}>
-                <Text>Loading...</Text>
+                <ActivityIndicator style={styles.centreSpinner} size="large" />
             </View>
         );
     }
