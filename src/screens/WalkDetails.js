@@ -118,6 +118,7 @@ export default function WalkDetails() {
                 {walk.rating && <Text>Rating: {walk.rating}</Text>}
                 {walk.difficulty && <Text>Difficulty: {walk.difficulty}</Text>}
                 {walk.start_altitude !== 0 && <Text>Start Altitude: {walk.start_altitude} m</Text>}
+                {walk.username && <Text>Creator: {walk.username}</Text>}
                 <View style={styles.centredRow}>
                     <Ionicons
                         name="location-sharp"
