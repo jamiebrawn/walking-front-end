@@ -210,7 +210,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    height: 40, 
+    height: 40,
   },
 });
 
@@ -229,6 +229,7 @@ const styles = StyleSheet.create({
 //   const [totalDistance, setTotalDistance] = useState(0);
 //   const [totalAscent, setTotalAscent] = useState(0);
 //   const [recording, setRecording] = useState(false);
+//   const recordingRef = useRef(false);
 //   const [isModalVisible, setIsModalVisible] = useState(false);
 //   const [isLoading, setIsLoading] = useState(true);
 //   const isFollowing = useRef(true);
@@ -252,8 +253,8 @@ const styles = StyleSheet.create({
 //           setRegion({
 //             latitude: location.coords.latitude,
 //             longitude: location.coords.longitude,
-//             latitudeDelta: 0.01,
-//             longitudeDelta: 0.01,
+//             latitudeDelta: 0.005,
+//             longitudeDelta: 0.005,
 //           });
 //           setIsLoading(false);
 //           console.log("initial location, isFollowing:", isFollowing.current);
@@ -268,6 +269,8 @@ const styles = StyleSheet.create({
 //           },
 //           (newLocation) => {
 //             console.log("new location, isFollowing:", isFollowing.current);
+//             console.log("recording status:" , recording)
+//             console.log("recording ref status", recordingRef.current)
 //             // console.log("new location, isFollowingUser:", isFollowingUser);
 
 //             const newLocationFormat = {
@@ -277,23 +280,24 @@ const styles = StyleSheet.create({
 //                 Math.round(newLocation.coords.altitude * 100) / 100 || 0,
 //             };
 
-//             setRegion({
-//               ...newLocationFormat,
-//               latitudeDelta: 0.01,
-//               longitudeDelta: 0.01,
-//             });
+//             // setRegion({
+//             //   ...newLocationFormat,
+//             //   latitudeDelta: 0.01,
+//             //   longitudeDelta: 0.01,
+//             // });
 
-//             if (isFollowing.current) {
+//             if (isFollowing.current && recordingRef.current) {
 //               // if (isFollowingUser) {
 //               mapRef.current.animateToRegion({
 //                 latitude: newLocationFormat.latitude,
 //                 longitude: newLocationFormat.longitude,
-//                 latitudeDelta: 0.01,
-//                 longitudeDelta: 0.01,
+//                 latitudeDelta: 0.001,
+//                 longitudeDelta: 0.001,
 //               });
 //             }
 
-//             if (recording) {
+//             // if (recording) {
+//             if (recordingRef.current) {  
 //               setRecordedLocations((prevLocations) => {
 //                 const lastLocation = prevLocations[prevLocations.length - 1];
 //                 if (!lastLocation) {
@@ -336,7 +340,8 @@ const styles = StyleSheet.create({
 //         setIsLoading(false);
 //       }
 //     })();
-//   }, [recording]);
+//   }, [recordingRef.current]);
+//   // }, [recording]);
 
 //   const centerOnUserLocation = async () => {
 //     if (!isFollowing.current) {
@@ -347,17 +352,32 @@ const styles = StyleSheet.create({
 //       setIsFollowingUser(true);
 //     }
 //     let currentLocation = await Location.getCurrentPositionAsync({});
-//     setRegion({
-//       ...currentLocation.coords,
-//       latitudeDelta: 0.01,
-//       longitudeDelta: 0.01,
-//     });
-//     mapRef.current.animateToRegion({
-//       latitude: currentLocation.coords.latitude,
-//       longitude: currentLocation.coords.longitude,
-//       latitudeDelta: 0.01,
-//       longitudeDelta: 0.01,
-//     });
+//     // if (recording) {
+//     if(recordingRef.current) {
+//       // setRegion({
+//       //   ...currentLocation.coords,
+//       //   latitudeDelta: 0.005,
+//       //   longitudeDelta: 0.005,
+//       // });
+//       mapRef.current.animateToRegion({
+//         latitude: currentLocation.coords.latitude,
+//         longitude: currentLocation.coords.longitude,
+//         latitudeDelta: 0.001,
+//         longitudeDelta: 0.001,
+//       });
+//     } else {
+//       // setRegion({
+//       //   ...currentLocation.coords,
+//       //   latitudeDelta: 0.01,
+//       //   longitudeDelta: 0.01,
+//       // });
+//       mapRef.current.animateToRegion({
+//         latitude: currentLocation.coords.latitude,
+//         longitude: currentLocation.coords.longitude,
+//         latitudeDelta: 0.005,
+//         longitudeDelta: 0.005,
+//       });
+//     }
 //     console.log("centered on user location, isFollowing:", isFollowing.current);
 //     // console.log("centered on user location, isFollowingUser:", isFollowingUser);
 //   };
@@ -367,25 +387,23 @@ const styles = StyleSheet.create({
 //       isFollowing.current = false;
 //       console.log("region change handled, isFollowing:", isFollowing.current);
 //     }
-//       if (isFollowingUser === true) {
-//         setIsFollowingUser(false);
-//         console.log("region change handled, isFollowingUser:", isFollowingUser);
-//       }
+//     if (isFollowingUser === true) {
+//       setIsFollowingUser(false);
+//       console.log("region change handled, isFollowingUser:", isFollowingUser);
+//     }
 //   };
 
 //   const handleStart = () => {
 //     setRecording(true);
-//     if (!isFollowing.current) {
+//     recordingRef.current = true;
 //       isFollowing.current = true;
-//     }
-//     if (!isFollowingUser) {
 //       setIsFollowingUser(true);
-//     }
 //   };
 
 //   const handleStop = () => {
 //     setIsModalVisible(true);
 //     setRecording(false);
+//     recordingRef.current = false;
 //   };
 
 //   const tileUrl = "https://tile.openstreetmap.de/{z}/{x}/{y}.png";
@@ -411,6 +429,7 @@ const styles = StyleSheet.create({
 //               style={styles.map}
 //               initialRegion={region}
 //               showsUserLocation={true}
+//               showsMyLocationButton={false}
 //               zoomControlEnabled={true}
 //               showsCompass={true}
 //               mapType={Platform.OS == "android" ? "none" : "standard"}
@@ -479,8 +498,8 @@ const styles = StyleSheet.create({
 //   },
 //   currentPositionButton: {
 //     position: "absolute",
-//     bottom: 20,
-//     right: 20,
+//     bottom: 30,
+//     left: 20,
 //     zIndex: 10,
 //   },
 //   info: {
