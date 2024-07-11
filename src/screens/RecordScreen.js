@@ -213,3 +213,284 @@ const styles = StyleSheet.create({
     height: 40, 
   },
 });
+
+// import { useState, useEffect, useRef } from "react";
+// import MapView, { UrlTile, Polyline } from "react-native-maps";
+// import * as Location from "expo-location";
+// import { StyleSheet, View, Platform } from "react-native";
+// import { Text, Button, Icon } from "react-native-paper";
+// import haversine from "haversine-distance";
+// import UploadModal from "../components/UploadModal";
+// import Constants from "expo-constants";
+
+// export default RecordScreen = ({ setRefreshWalkList }) => {
+//   const [region, setRegion] = useState(null);
+//   const [recordedLocations, setRecordedLocations] = useState([]);
+//   const [totalDistance, setTotalDistance] = useState(0);
+//   const [totalAscent, setTotalAscent] = useState(0);
+//   const [recording, setRecording] = useState(false);
+//   const [isModalVisible, setIsModalVisible] = useState(false);
+//   const [isLoading, setIsLoading] = useState(true);
+//   const isFollowing = useRef(true);
+//   const [isFollowingUser, setIsFollowingUser] = useState(true);
+//   const locationSubscription = useRef(null);
+//   const mapRef = useRef(null);
+
+//   useEffect(() => {
+//     setIsLoading(true);
+
+//     (async () => {
+//       try {
+//         let { status } = await Location.requestForegroundPermissionsAsync();
+//         if (status !== "granted") {
+//           console.error("Permission to access location was denied");
+//           return;
+//         }
+
+//         let location = await Location.getCurrentPositionAsync({});
+//         if (location && location.coords) {
+//           setRegion({
+//             latitude: location.coords.latitude,
+//             longitude: location.coords.longitude,
+//             latitudeDelta: 0.01,
+//             longitudeDelta: 0.01,
+//           });
+//           setIsLoading(false);
+//           console.log("initial location, isFollowing:", isFollowing.current);
+//           // console.log("initial location, isFollowingUser:", isFollowingUser);
+//         }
+
+//         locationSubscription.current = await Location.watchPositionAsync(
+//           {
+//             accuracy: Location.Accuracy.High,
+//             distanceInterval: 10,
+//             timeInterval: 10000,
+//           },
+//           (newLocation) => {
+//             console.log("new location, isFollowing:", isFollowing.current);
+//             // console.log("new location, isFollowingUser:", isFollowingUser);
+
+//             const newLocationFormat = {
+//               latitude: newLocation.coords.latitude,
+//               longitude: newLocation.coords.longitude,
+//               altitude:
+//                 Math.round(newLocation.coords.altitude * 100) / 100 || 0,
+//             };
+
+//             setRegion({
+//               ...newLocationFormat,
+//               latitudeDelta: 0.01,
+//               longitudeDelta: 0.01,
+//             });
+
+//             if (isFollowing.current) {
+//               // if (isFollowingUser) {
+//               mapRef.current.animateToRegion({
+//                 latitude: newLocationFormat.latitude,
+//                 longitude: newLocationFormat.longitude,
+//                 latitudeDelta: 0.01,
+//                 longitudeDelta: 0.01,
+//               });
+//             }
+
+//             if (recording) {
+//               setRecordedLocations((prevLocations) => {
+//                 const lastLocation = prevLocations[prevLocations.length - 1];
+//                 if (!lastLocation) {
+//                   return [newLocationFormat];
+//                 } else {
+//                   const distanceMoved = haversine(
+//                     lastLocation,
+//                     newLocationFormat
+//                   );
+//                   let ascent = 0;
+
+//                   if (newLocationFormat.altitude > lastLocation.altitude) {
+//                     ascent = newLocationFormat.altitude - lastLocation.altitude;
+//                   }
+
+//                   if (distanceMoved > 0.0001) {
+//                     const updatedHistory = [
+//                       ...prevLocations,
+//                       newLocationFormat,
+//                     ];
+//                     console.log(
+//                       "Updated user location history:",
+//                       updatedHistory
+//                     );
+//                     setTotalDistance(
+//                       (previousDistance) =>
+//                         previousDistance + distanceMoved / 1000
+//                     );
+//                     setTotalAscent((previousAscent) => previousAscent + ascent);
+//                     return updatedHistory;
+//                   }
+//                 }
+//                 return prevLocations;
+//               });
+//             }
+//           }
+//         );
+//       } catch (error) {
+//         console.error("Error in location tracking:", error);
+//         setIsLoading(false);
+//       }
+//     })();
+//   }, [recording]);
+
+//   const centerOnUserLocation = async () => {
+//     if (!isFollowing.current) {
+//       isFollowing.current = true;
+//     }
+
+//     if (!isFollowingUser) {
+//       setIsFollowingUser(true);
+//     }
+//     let currentLocation = await Location.getCurrentPositionAsync({});
+//     setRegion({
+//       ...currentLocation.coords,
+//       latitudeDelta: 0.01,
+//       longitudeDelta: 0.01,
+//     });
+//     mapRef.current.animateToRegion({
+//       latitude: currentLocation.coords.latitude,
+//       longitude: currentLocation.coords.longitude,
+//       latitudeDelta: 0.01,
+//       longitudeDelta: 0.01,
+//     });
+//     console.log("centered on user location, isFollowing:", isFollowing.current);
+//     // console.log("centered on user location, isFollowingUser:", isFollowingUser);
+//   };
+
+//   const handlePanDrag = () => {
+//     if (isFollowing.current === true) {
+//       isFollowing.current = false;
+//       console.log("region change handled, isFollowing:", isFollowing.current);
+//     }
+//       if (isFollowingUser === true) {
+//         setIsFollowingUser(false);
+//         console.log("region change handled, isFollowingUser:", isFollowingUser);
+//       }
+//   };
+
+//   const handleStart = () => {
+//     setRecording(true);
+//     if (!isFollowing.current) {
+//       isFollowing.current = true;
+//     }
+//     if (!isFollowingUser) {
+//       setIsFollowingUser(true);
+//     }
+//   };
+
+//   const handleStop = () => {
+//     setIsModalVisible(true);
+//     setRecording(false);
+//   };
+
+//   const tileUrl = "https://tile.openstreetmap.de/{z}/{x}/{y}.png";
+
+//   return (
+//     <>
+//       <UploadModal
+//         isModalVisible={isModalVisible}
+//         setIsModalVisible={setIsModalVisible}
+//         userLocationHistory={recordedLocations}
+//         totalDistance={totalDistance}
+//         totalAscent={totalAscent}
+//         setUserLocationHistory={setRecordedLocations}
+//         setTotalDistance={setTotalDistance}
+//         setTotalAscent={setTotalAscent}
+//         setRefreshWalkList={setRefreshWalkList}
+//       />
+//       <View style={styles.container}>
+//         <View style={styles.mapContainer}>
+//           {region && (
+//             <MapView
+//               ref={mapRef}
+//               style={styles.map}
+//               initialRegion={region}
+//               showsUserLocation={true}
+//               zoomControlEnabled={true}
+//               showsCompass={true}
+//               mapType={Platform.OS == "android" ? "none" : "standard"}
+//               onPanDrag={handlePanDrag}
+//             >
+//               <UrlTile
+//                 urlTemplate={tileUrl}
+//                 maximumZ={19}
+//                 flipY={false}
+//                 tileSize={256}
+//               />
+//               <Polyline
+//                 coordinates={recordedLocations.map((point) => ({
+//                   latitude: point.latitude,
+//                   longitude: point.longitude,
+//                 }))}
+//                 // coordinates={recordedLocations}
+//                 strokeColor="#FF0000"
+//                 strokeWidth={2}
+//               />
+//             </MapView>
+//           )}
+//           <Button
+//             icon="crosshairs-gps"
+//             // mode={isFollowing.current ? "contained" : "contained-tonal"}
+//             mode={isFollowingUser ? "contained" : "contained-tonal"}
+//             style={styles.currentPositionButton}
+//             onPress={centerOnUserLocation}
+//           >
+//             Current Position
+//           </Button>
+//         </View>
+//         <View style={styles.info}>
+//           <View style={styles.metric}>
+//             <Icon source="walk" size={30} />
+//             <Text variant="displaySmall">{totalDistance.toFixed(2)}km</Text>
+//           </View>
+//           <View style={styles.metric}>
+//             <Icon source="slope-uphill" size={30} />
+//             <Text variant="displaySmall">{totalAscent.toFixed(2)}m</Text>
+//           </View>
+//         </View>
+//         <Button
+//           mode={"contained"}
+//           onPress={!recording ? handleStart : handleStop}
+//         >
+//           {!recording ? "Start Tracking" : "Stop Tracking"}
+//         </Button>
+//       </View>
+//     </>
+//   );
+// };
+
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     marginTop: Constants.statusBarHeight,
+//   },
+//   mapContainer: {
+//     flex: 19,
+//     justifyContent: "flex-end",
+//     alignItems: "center",
+//   },
+//   map: {
+//     ...StyleSheet.absoluteFillObject,
+//   },
+//   currentPositionButton: {
+//     position: "absolute",
+//     bottom: 20,
+//     right: 20,
+//     zIndex: 10,
+//   },
+//   info: {
+//     backgroundColor: "white",
+//     flex: 1,
+//     flexDirection: "row",
+//     justifyContent: "space-evenly",
+//   },
+//   metric: {
+//     flexDirection: "row",
+//     alignItems: "center",
+//   },
+// });
