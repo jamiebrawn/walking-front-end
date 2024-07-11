@@ -9,33 +9,39 @@ import {
   Dimensions,
   Animated,
   TextInput,
-  Button
+  Keyboard,
+  KeyboardAvoidingView,
 } from "react-native";
-import { IconButton, ActivityIndicator, Button as PaperButton, SegmentedButtons } from "react-native-paper";
+import {
+  IconButton,
+  ActivityIndicator,
+  Button,
+  SegmentedButtons,
+} from "react-native-paper";
 import MapView, { Marker, UrlTile, Callout } from "react-native-maps";
 import { useNavigation } from "@react-navigation/native";
 import * as Location from "expo-location";
-import Constants from 'expo-constants';
+import Constants from "expo-constants";
 import { getWalks } from "../utils/api";
 import WalkCard from "../components/WalkCard";
+import RNPickerSelect from "react-native-picker-select";
 
-export default Home = (refreshWalkList, setRefreshWalkList) => {
+export default Home = ({ refreshWalkList, setRefreshWalkList }) => {
   const [walks, setWalks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [mapReady, setMapReady] = useState(false);
   const [isMapView, setIsMapView] = useState(true);
   const [region, setRegion] = useState(null);
   const [isSliderVisible, setIsSliderVisible] = useState(false);
-  const [minDistance, setMinDistance] = useState('');
-  const [maxDistance, setMaxDistance] = useState('');
-  const [difficulty, setDifficulty] = useState('');
   const navigation = useNavigation();
   const windowHeight = Dimensions.get("window").height;
-  const [slideAnim] = useState(new Animated.Value(-windowHeight * 0.5));
+  const [slideAnim] = useState(
+    new Animated.Value(-(windowHeight * 0.5) - Constants.statusBarHeight)
+  );
 
-  useEffect(() => {
-    fetchWalks();
-  }, [refreshWalkList]);
+  const [minDistance, setMinDistance] = useState("");
+  const [maxDistance, setMaxDistance] = useState("");
+  const [difficulty, setDifficulty] = useState("");
 
   const fetchWalks = async () => {
     try {
@@ -55,6 +61,10 @@ export default Home = (refreshWalkList, setRefreshWalkList) => {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchWalks();
+  }, [refreshWalkList]);
 
   useEffect(() => {
     const setMap = async () => {
@@ -99,8 +109,6 @@ export default Home = (refreshWalkList, setRefreshWalkList) => {
     setMap();
   }, [walks]);
 
-  const toggleView = () => setIsMapView(!isMapView);
-
   const handleCardPress = (walk) => {
     navigation.navigate("WalkDetails", { walk, setRefreshWalkList });
   };
@@ -112,10 +120,13 @@ export default Home = (refreshWalkList, setRefreshWalkList) => {
   const toggleSlider = () => {
     if (isSliderVisible) {
       Animated.timing(slideAnim, {
-        toValue: -windowHeight * 0.5,
+        toValue: -(windowHeight * 0.5 + Constants.statusBarHeight),
         duration: 300,
         useNativeDriver: false,
-      }).start(() => setIsSliderVisible(false));
+      }).start(() => {
+        setIsSliderVisible(false);
+        Keyboard.dismiss(); // Dismiss the keyboard when slider closes
+      });
     } else {
       setIsSliderVisible(true);
       Animated.timing(slideAnim, {
@@ -128,93 +139,137 @@ export default Home = (refreshWalkList, setRefreshWalkList) => {
 
   const applyFilters = () => {
     fetchWalks();
+    toggleSlider();
+  };
+
+  const clearFilters = () => {
+    setMinDistance("");
+    setMaxDistance("");
+    setDifficulty("");
+    setRefreshWalkList(!refreshWalkList);
+    toggleSlider();
   };
 
   const tileUrl = "https://tile.openstreetmap.de/{z}/{x}/{y}.png";
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : "height"} // Adjust behavior as per platform
+    >
       <View style={styles.header}>
         <IconButton icon="tune-variant" onPress={toggleSlider} />
-          <SegmentedButtons
-            style={styles.segmentedButtons}
-            value={isMapView ? 'map' : 'list'}
-            onValueChange={value => setIsMapView(value === 'map')}
-            buttons={[
-              { value: 'map', label: 'Map View' },
-              { value: 'list', label: 'List View' }
-            ]}
-          />
+        <SegmentedButtons
+          style={styles.segmentedButtons}
+          value={isMapView ? "map" : "list"}
+          onValueChange={(value) => setIsMapView(value === "map")}
+          buttons={[
+            { value: "map", label: "Map View" },
+            { value: "list", label: "List View" },
+          ]}
+        />
       </View>
       <View style={styles.contentContainer}>
-        <Animated.View style={[styles.sliderView, { transform: [{ translateY: slideAnim }] }]}>
+        <Animated.View
+          style={[
+            styles.sliderView,
+            { transform: [{ translateY: slideAnim }] },
+          ]}
+        >
           <View style={styles.sliderContent}>
-            {/* Filters */}
-            <Text>Min Distance (km)</Text>
-            <TextInput
-              style={styles.input}
-              value={minDistance}
-              onChangeText={setMinDistance}
-              keyboardType="numeric"
+            <Text style={styles.filterHeader}>Distance Range (km)</Text>
+            <View style={styles.distanceInputContainer}>
+              <View style={styles.distanceInput}>
+                <Text>Min Distance (km)</Text>
+                <TextInput
+                  style={styles.input}
+                  value={minDistance}
+                  onChangeText={setMinDistance}
+                  keyboardType="numeric"
+                />
+              </View>
+              <View style={styles.distanceInput}>
+                <Text>Max Distance (km)</Text>
+                <TextInput
+                  style={styles.input}
+                  value={maxDistance}
+                  onChangeText={setMaxDistance}
+                  keyboardType="numeric"
+                />
+              </View>
+            </View>
+            <Text style={styles.filterHeader}>Difficulty</Text>
+            <RNPickerSelect
+              onValueChange={(value) => setDifficulty(value)}
+              items={[
+                { label: "Easy", value: 2 },
+                { label: "Moderate", value: 5 },
+                { label: "Challenging", value: 8 },
+              ]}
+              style={{ inputIOS: styles.input, inputAndroid: styles.input }}
+              placeholder={{ label: "Select Difficulty", value: null }}
             />
-            <Text>Max Distance (km)</Text>
-            <TextInput
-              style={styles.input}
-              value={maxDistance}
-              onChangeText={setMaxDistance}
-              keyboardType="numeric"
-            />
-            <Text>Difficulty</Text>
-            <TextInput
-              style={styles.input}
-              value={difficulty}
-              onChangeText={setDifficulty}
-              keyboardType="numeric"
-            />
-            <Button title="Apply Filters" onPress={applyFilters} />
+            <View style={styles.buttonRow}>
+              <Button
+                mode="outlined"
+                onPress={clearFilters}
+                style={styles.button}
+              >
+                Clear Filters
+              </Button>
+              <Button
+                mode="contained"
+                onPress={applyFilters}
+                style={styles.button}
+              >
+                Apply Filters
+              </Button>
+            </View>
           </View>
         </Animated.View>
 
-        {isLoading && !mapReady && <ActivityIndicator style={styles.centre} size="large" />}
+        {isLoading && !mapReady && (
+          <ActivityIndicator style={styles.center} size="large" />
+        )}
         {isMapView ? (
           region && (
-            <>
-              <MapView
-                style={styles.map}
-                initialRegion={region}
-                showsUserLocation={true}
-                showsMyLocationButton={true}
-                mapType={Platform.OS == "android" ? "none" : "standard"}
-                onLayout={() => setMapReady(true)}
-              >
-                <UrlTile
-                  urlTemplate={tileUrl}
-                  maximumZ={19}
-                  flipY={false}
-                  tileSize={256}
-                />
-                {walks &&
-                  walks.map((walk) => (
-                    <Marker
-                      key={walk.id}
-                      coordinate={{
-                        latitude: walk.start_latitude,
-                        longitude: walk.start_longitude,
-                      }}
-                      title={walk.title}
-                      description={walk.description}
-                    >
-                      <Callout onPress={() => handleMarkerPress(walk)}>
-                        <View style={styles.calloutContainer}>
-                          <Text style={styles.calloutTitle}>{walk.title}</Text>
-                          <Text style={styles.calloutDescription}>{walk.description}</Text>
-                          <PaperButton>Tap to view details</PaperButton>
-                        </View>
-                      </Callout>
-                    </Marker>
-                  ))}
-              </MapView>
-            </>
+            <MapView
+              style={styles.map}
+              initialRegion={region}
+              showsUserLocation={true}
+              showsMyLocationButton={true}
+              mapType={Platform.OS == "android" ? "none" : "standard"}
+              onLayout={() => setMapReady(true)}
+            >
+              <UrlTile
+                urlTemplate={tileUrl}
+                maximumZ={19}
+                flipY={false}
+                tileSize={256}
+              />
+              {walks &&
+                walks.map((walk) => (
+                  <Marker
+                    key={walk.id}
+                    coordinate={{
+                      latitude: walk.start_latitude,
+                      longitude: walk.start_longitude,
+                    }}
+                    title={walk.title}
+                    description={walk.description}
+                  >
+                    <Callout onPress={() => handleMarkerPress(walk)}>
+                      <View style={styles.calloutContainer}>
+                        <Text style={styles.calloutTitle}>{walk.title}</Text>
+                        <Text style={styles.calloutDescription}>
+                          {walk.description}
+                        </Text>
+                        <Button>Tap to view details</Button>
+                      </View>
+                    </Callout>
+                  </Marker>
+                ))}
+            </MapView>
           )
         ) : (
           <FlatList
@@ -228,7 +283,7 @@ export default Home = (refreshWalkList, setRefreshWalkList) => {
           />
         )}
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -238,7 +293,6 @@ const styles = StyleSheet.create({
   },
   header: {
     zIndex: 2,
-    flex: 1,
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 10,
@@ -247,12 +301,12 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     zIndex: 1,
-    flex: 20,
+    flex: 1,
   },
   map: {
     flex: 1,
   },
-  centre: {
+  center: {
     ...StyleSheet.absoluteFillObject,
     justifyContent: "center",
     alignSelf: "center",
@@ -261,7 +315,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     left: 0,
     right: 0,
-    height: '50%',
+    height: "50%", // Set a fixed height for the slider view
     zIndex: 1,
     backgroundColor: "white",
     borderBottomLeftRadius: 10,
@@ -273,38 +327,61 @@ const styles = StyleSheet.create({
   },
   sliderContent: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    width: "100%",
+  },
+  distanceInputContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 10,
+  },
+  distanceInput: {
+    flex: 1,
+    marginHorizontal: 10,
+  },
+  filterHeader: {
+    // fontSize: 16,
+    fontWeight: "bold",
+    // marginBottom: 10,
   },
   calloutContainer: {
     width: 200,
     padding: 10,
-    backgroundColor: 'white',
+    backgroundColor: "white",
   },
   calloutTitle: {
     fontSize: 16,
     marginBottom: 5,
-    textAlign: "center"
+    textAlign: "center",
   },
   calloutDescription: {
     fontSize: 14,
     marginBottom: 5,
-    color: '#888',
-    textAlign: "center"
+    color: "#888",
+    textAlign: "center",
   },
   segmentedButtons: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center', 
-    height: 40, 
+    alignItems: "center",
+    justifyContent: "center",
+    height: 40,
     margin: 15,
   },
   input: {
     height: 40,
-    borderColor: 'gray',
+    borderColor: "gray",
     borderWidth: 1,
     marginBottom: 10,
     paddingHorizontal: 8,
-    width: '80%'
+    width: "100%",
+  },
+  buttonRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 20,
+    width: "100%",
+  },
+  button: {
+    flex: 1,
+    marginHorizontal: 10,
   },
 });
