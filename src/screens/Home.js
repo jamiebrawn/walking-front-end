@@ -125,7 +125,7 @@ export default Home = ({ refreshWalkList, setRefreshWalkList }) => {
         useNativeDriver: false,
       }).start(() => {
         setIsSliderVisible(false);
-        Keyboard.dismiss(); // Dismiss the keyboard when slider closes
+        Keyboard.dismiss(); 
       });
     } else {
       setIsSliderVisible(true);
@@ -155,7 +155,7 @@ export default Home = ({ refreshWalkList, setRefreshWalkList }) => {
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : "height"} // Adjust behavior as per platform
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <View style={styles.header}>
         <IconButton icon="tune-variant" onPress={toggleSlider} />
@@ -315,7 +315,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     left: 0,
     right: 0,
-    height: "50%", // Set a fixed height for the slider view
+    height: "50%", 
     zIndex: 1,
     backgroundColor: "white",
     borderBottomLeftRadius: 10,
