@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { View, StyleSheet, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { FlatList } from "react-native-gesture-handler";
-import { Text, Button } from "react-native-paper";
+import { Text, Button, ActivityIndicator } from "react-native-paper";
 import { getWalksByUserId } from "../utils/api";
 import WalkCard from "../components/WalkCard";
 import { useAuth } from "../contexts/AuthContext";
@@ -31,6 +31,15 @@ export default Profile = ({setRefreshWalkList}) => {
   const handleCardPress = (walk) => {
     navigation.navigate("WalkDetails", { walk, setRefreshWalkList });
   };
+
+  if (isLoading) {
+    return (
+        <View style={styles.container}>
+            <ActivityIndicator style={styles.centreSpinner} size="large" />
+        </View>
+    );
+}
+
 
   return (
     <View style={styles.mainView}>
@@ -85,4 +94,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  container: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+},  
 });
